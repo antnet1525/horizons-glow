@@ -440,10 +440,15 @@
         }
 
         // Add click handlers to ornaments
-        document.querySelectorAll('.ornament').forEach(ornament => {
+        document.querySelectorAll('.ornament').forEach((ornament, index) => {
             ornament.addEventListener('click', function() {
                 if (this.classList.contains('unlocked')) {
-                    alert('🎄 ' + this.textContent + ' You clicked an ornament! 🎄');
+                    // Black ornament (first ornament, index 0)
+                    if (index === 0) {
+                        window.location.href = 'black_ornament.html';
+                    } else {
+                        alert('You clicked an ornament!');
+                    }
                 } else {
                     alert('This ornament is still locked!');
                 }
