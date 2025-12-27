@@ -1,0 +1,738 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moon White · Olivier Odorant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(
+                to bottom,
+                #0D1424 0%,
+                #0B111E 55%,
+                #080C16 100%
+            );
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px 120px 20px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+        }
+
+        /* Moon */
+        .moon {
+            position: fixed;
+            top: 15%;
+            right: 25%;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #EBEEF2;
+            box-shadow: 0 0 16px rgba(235, 238, 242, 0.14);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Olivier branches - grounded, structural */
+        .olivier {
+            position: fixed;
+            opacity: 0.18;
+            filter: blur(2px) saturate(0.7);
+            mix-blend-mode: lighten;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .olivier1 {
+            bottom: -5%;
+            left: -3%;
+            width: 300px;
+            height: 300px;
+            transform: rotate(15deg);
+        }
+
+        .olivier2 {
+            bottom: -5%;
+            right: -3%;
+            width: 300px;
+            height: 300px;
+            transform: rotate(-20deg);
+        }
+
+        /* Fixed stars - points of reference */
+        .star {
+            position: fixed;
+            background: rgba(235, 238, 242, 0.55);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        /* Letter container */
+        .letter-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 800px;
+            background: rgba(20, 20, 20, 0.5);
+            border: 1px solid rgba(242, 242, 238, 0.1);
+            border-radius: 15px;
+            padding: 40px 40px 20px 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .letter-title {
+            color: #F2F2EE;
+            font-size: 2em;
+            font-weight: 300;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: 0.05em;
+            opacity: 0.95;
+        }
+
+        .letter-content {
+            width: 100%;
+            max-height: 450px;
+            overflow-y: auto;
+            background: rgba(15, 15, 15, 0.4);
+            border: 1px solid rgba(242, 242, 238, 0.08);
+            border-radius: 8px;
+            padding: 30px;
+            color: #F2F2EE;
+            font-size: 1.1em;
+            line-height: 2;
+            font-weight: 300;
+            font-family: 'Georgia', serif;
+            text-align: left;
+        }
+
+        .letter-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .letter-content::-webkit-scrollbar-track {
+            background: rgba(242, 242, 238, 0.05);
+            border-radius: 3px;
+        }
+
+        .letter-content::-webkit-scrollbar-thumb {
+            background: rgba(242, 242, 238, 0.2);
+            border-radius: 3px;
+        }
+
+        .letter-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(242, 242, 238, 0.3);
+        }
+
+        .back-button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: rgba(242, 242, 238, 0.05);
+            border: 1px solid rgba(242, 242, 238, 0.2);
+            border-radius: 8px;
+            color: #F2F2EE;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
+            font-weight: 300;
+        }
+
+        .back-button:hover {
+            background: rgba(242, 242, 238, 0.1);
+            border-color: rgba(242, 242, 238, 0.3);
+        }
+
+        /* Spotify player bar */
+        .spotify-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 90px;
+            background: #181818;
+            border-top: 1px solid #282828;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 100;
+        }
+
+        .track-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 0 0 30%;
+            min-width: 180px;
+        }
+
+        .album-art {
+            width: 56px;
+            height: 56px;
+            background: #282828;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .album-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .track-details {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .track-name {
+            color: #ffffff;
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            color: #b3b3b3;
+            font-size: 11px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist:hover {
+            color: #ffffff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .player-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 722px;
+            gap: 8px;
+        }
+
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .control-btn:hover {
+            color: #ffffff;
+        }
+
+        .control-btn.prev,
+        .control-btn.next {
+            font-size: 16px;
+        }
+
+        .control-btn.play {
+            background: #ffffff;
+            color: #000000;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+
+        .control-btn.play:hover {
+            transform: scale(1.06);
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .time {
+            color: #a7a7a7;
+            font-size: 11px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: #4d4d4d;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress-bar:hover .progress-fill::after {
+            opacity: 1;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #b3b3b3;
+            border-radius: 2px;
+            position: relative;
+            width: 0%;
+            transition: background 0.2s;
+        }
+
+        .progress-bar:hover .progress-fill {
+            background: #1db954;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 30%;
+            justify-content: flex-end;
+            min-width: 180px;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .volume-icon {
+            color: #b3b3b3;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .volume-icon:hover {
+            color: #ffffff;
+        }
+
+        .volume-bar {
+            width: 93px;
+            height: 4px;
+            background: #4d4d4d;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .volume-fill {
+            height: 100%;
+            background: #b3b3b3;
+            border-radius: 2px;
+            width: 100%;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .volume-bar:hover .volume-fill {
+            background: #1db954;
+        }
+
+        .volume-bar:hover .volume-fill::after {
+            opacity: 1;
+        }
+
+        .volume-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        /* Hidden audio element */
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Moon -->
+    <div class="moon"></div>
+
+    <!-- Olivier branches - grounded at bottom -->
+    <svg class="olivier olivier1" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Leaves arranged naturally, opening upward -->
+        <ellipse cx="80" cy="180" rx="22" ry="35" fill="#5A6B59" opacity="0.75" transform="rotate(-45 80 180)"/>
+        <ellipse cx="110" cy="185" rx="24" ry="38" fill="#5A6B59" opacity="0.73" transform="rotate(-25 110 185)"/>
+        <ellipse cx="140" cy="180" rx="23" ry="36" fill="#5A6B59" opacity="0.72" transform="rotate(-10 140 180)"/>
+        <ellipse cx="70" cy="190" rx="20" ry="32" fill="#5A6B59" opacity="0.7" transform="rotate(-60 70 190)"/>
+        <ellipse cx="150" cy="185" rx="21" ry="34" fill="#5A6B59" opacity="0.71" transform="rotate(5 150 185)"/>
+        
+        <!-- Stems connecting leaves to flowers -->
+        <path d="M 85 165 Q 90 155 95 145" stroke="#6B7D6A" stroke-width="2.5" fill="none"/>
+        <path d="M 115 170 Q 115 160 115 150" stroke="#6B7D6A" stroke-width="2.5" fill="none"/>
+        <path d="M 140 165 Q 135 155 130 145" stroke="#6B7D6A" stroke-width="2.5" fill="none"/>
+        
+        <!-- Olivier odorant flowers positioned above leaves -->
+        <!-- Flower 1 - petals meeting at tips -->
+        <g>
+            <ellipse cx="95" cy="133" rx="6" ry="12" fill="#F8F9FA" opacity="0.95"/>
+            <ellipse cx="95" cy="157" rx="6" ry="12" fill="#F8F9FA" opacity="0.95"/>
+            <ellipse cx="79" cy="145" rx="12" ry="6" fill="#EEF0F5" opacity="0.95"/>
+            <ellipse cx="111" cy="145" rx="12" ry="6" fill="#EEF0F5" opacity="0.95"/>
+            <circle cx="95" cy="145" r="3.5" fill="#F4E8D0"/>
+        </g>
+        
+        <!-- Flower 2 - petals meeting at tips -->
+        <g>
+            <ellipse cx="115" cy="138" rx="6" ry="12" fill="#F8F9FA" opacity="0.95"/>
+            <ellipse cx="115" cy="162" rx="6" ry="12" fill="#F8F9FA" opacity="0.95"/>
+            <ellipse cx="99" cy="150" rx="12" ry="6" fill="#EEF0F5" opacity="0.95"/>
+            <ellipse cx="131" cy="150" rx="12" ry="6" fill="#EEF0F5" opacity="0.95"/>
+            <circle cx="115" cy="150" r="3.5" fill="#F4E8D0"/>
+        </g>
+        
+        <!-- Flower 3 - petals meeting at tips -->
+        <g>
+            <ellipse cx="130" cy="133" rx="6" ry="12" fill="#F8F9FA" opacity="0.95"/>
+            <ellipse cx="130" cy="157" rx="6" ry="12" fill="#F8F9FA" opacity="0.95"/>
+            <ellipse cx="114" cy="145" rx="12" ry="6" fill="#EEF0F5" opacity="0.95"/>
+            <ellipse cx="146" cy="145" rx="12" ry="6" fill="#EEF0F5" opacity="0.95"/>
+            <circle cx="130" cy="145" r="3.5" fill="#F4E8D0"/>
+        </g>
+    </svg>
+
+    <svg class="olivier olivier2" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Leaves arranged naturally, opening upward -->
+        <ellipse cx="220" cy="180" rx="22" ry="35" fill="#5A6B59" opacity="0.75" transform="rotate(45 220 180)"/>
+        <ellipse cx="190" cy="185" rx="24" ry="38" fill="#5A6B59" opacity="0.73" transform="rotate(25 190 185)"/>
+        <ellipse cx="160" cy="180" rx="23" ry="36" fill="#5A6B59" opacity="0.72" transform="rotate(10 160 180)"/>
+        <ellipse cx="230" cy="190" rx="20" ry="32" fill="#5A6B59" opacity="0.7" transform="rotate(60 230 190)"/>
+        <ellipse cx="150" cy="185" rx="21" ry="34" fill="#5A6B59" opacity="0.71" transform="rotate(-5 150 185)"/>
+        
+        <!-- Stems connecting leaves to flowers -->
+        <path d="M 215 165 Q 210 155 205 145" stroke="#6B7D6A" stroke-width="2.5" fill="none"/>
+        <path d="M 185 170 Q 185 160 185 150" stroke="#6B7D6A" stroke-width="2.5" fill="none"/>
+        <path d="M 160 165 Q 165 155 170 145" stroke="#6B7D6A" stroke-width="2.5" fill="none"/>
+        
+        <!-- Olivier odorant flowers positioned above leaves -->
+        <!-- Flower 1 - petals meeting at tips -->
+        <g>
+            <ellipse cx="205" cy="133" rx="6" ry="12" fill="#F8F9FA" opacity="0.95"/>
+            <ellipse cx="205" cy="157" rx="6" ry="12" fill="#F8F9FA" opacity="0.95"/>
+            <ellipse cx="189" cy="145" rx="12" ry="6" fill="#EEF0F5" opacity="0.95"/>
+            <ellipse cx="221" cy="145" rx="12" ry="6" fill="#EEF0F5" opacity="0.95"/>
+            <circle cx="205" cy="145" r="3.5" fill="#F4E8D0"/>
+        </g>
+        
+        <!-- Flower 2 - petals meeting at tips -->
+        <g>
+            <ellipse cx="185" cy="138" rx="6" ry="12" fill="#F8F9FA" opacity="0.95"/>
+            <ellipse cx="185" cy="162" rx="6" ry="12" fill="#F8F9FA" opacity="0.95"/>
+            <ellipse cx="169" cy="150" rx="12" ry="6" fill="#EEF0F5" opacity="0.95"/>
+            <ellipse cx="201" cy="150" rx="12" ry="6" fill="#EEF0F5" opacity="0.95"/>
+            <circle cx="185" cy="150" r="3.5" fill="#F4E8D0"/>
+        </g>
+        
+        <!-- Flower 3 - petals meeting at tips -->
+        <g>
+            <ellipse cx="170" cy="133" rx="6" ry="12" fill="#F8F9FA" opacity="0.95"/>
+            <ellipse cx="170" cy="157" rx="6" ry="12" fill="#F8F9FA" opacity="0.95"/>
+            <ellipse cx="154" cy="145" rx="12" ry="6" fill="#EEF0F5" opacity="0.95"/>
+            <ellipse cx="186" cy="145" rx="12" ry="6" fill="#EEF0F5" opacity="0.95"/>
+            <circle cx="170" cy="145" r="3.5" fill="#F4E8D0"/>
+        </g>
+    </svg>
+
+    <div class="letter-container">
+        <h1 class="letter-title">Olivier Odorant</h1>
+        <div class="letter-content">
+            Sweetie,
+            <br><br>
+            For this day's gift, I wanted to do a bit of... analysis? Few fun things!
+            <br><br>
+            I call this ornament color moon white, as a bit of a transition from the previous moon/night sky theme. Ornaments will get lighter!
+            <br>
+            And with that I think there's a sort of serene, soft aspect of this color that makes it so nice. It's like white but not fully, so feels Christmas-y/wintery too?
+            <br>
+            Maybe it represents how commitment can be like a quiet action. Or maybe, like the moon, things can be left unseen but you always know it's there.
+            <br><br>
+            Oh and the song. I know this song isn't in your favorite album of hers but then again that album is full of like songs that would not be fitting so here's this one. Do you get the multiple significances?
+            <br>
+            I thought for this gift I could do a cute commentary thing! I couldn't figure out a neat way to do it with live lyrics and my commentary and stuff but here's the next best alternative (play along with the song if you want!):
+            <br><br>
+            (in lowercase bc i'm typing fast)
+            <br>
+            very nice fade in start
+            <br>
+            really soft intro to the song, soft instrumental in the back
+            <br>
+            « another thing i forced to be a sign » love the cutoff here, music cuts off here before her voice which i think is a nice touch (leaves that like finality to her word "sign")
+            <br>
+            breath in before the next part is like a small thing but i think it adds to the humanistic side to the song, like the sharp intake of breath is like something important following, like desperation or just making the next line that much punchier
+            <br>
+            « fair weather friends » or like "fake friends" interesting to mention, i think lot of questioning could go into whether friends are real or not
+            <br>
+            pause before the "but it's me who's been making the bed" line again gives it that extra emphasis, also title drop so there's that
+            <br>
+            « but it's me who's been making the bed » seems pretty much just like personally creating the environment that she's dissatisfied with from her own choices
+            <br>
+            i think it is pretty interesting to use "making the bed" as the choice of analogy here and maybe it's in part because bed is where you sleep, like a place of comfort and reliability every night, so it's something that you're going to be "experiencing" everyday
+            <br>
+            just like one's own life, it's always there and it's what you make of it, but bed gives it like this "this should be a comfortable place" feeling to it? and when it isn't, it throws you off more than it should
+            <br>
+            music starts swelling
+            <br>
+            « but it's me who's been making the bed » repeating this line AND having music cut off during its delivery just add to the emphasis
+            <br>
+            her voice also sounds less soft and more... desperate? like some sort of cathartic release of emotions enveloped in this line; gives the emotional punch she was going for
+            <br>
+            « pull the sheets over my head » this is an interesting choice of words/action to put here; pulling sheets over your head is only really done to represent being afraid or angry; some sort of negative emotion that if you cover yourself with your sheets, it's a way to block out those problems, that stress that's causing those negative emotions
+            <br>
+            a way to avoid the real world through a barrier formed by the very fabric that you come back to every night, a place of comfort and warmth; it's almost childlike, in a way
+            <br>
+            back to the verse, the same background beat (sounds like keyboard? not quite sure) from the first verse is back, but this time it's a bit louder; almost like we're still recovering from the previous emotional outburst
+            <br>
+            « and every night i wake up, from this one recurring dream » tie in with the whole bed, sleep, etc stuff i've been saying? but this time there's another element of a dream
+            <br>
+            i think dreams can be a really interesting thing to include in any forms of writing; it's not usually there unless it serves a purpose to foreshadow the plot, deepen a character, or stuff like that
+            <br>
+            here, the use of dream instead of nightmare could signify maybe this dream is good? so naturally you're drawn into what this dream is, and maybe it's positive in nature but has darker undertones making her want this escape from society's stresses
+            <br>
+            « the brakes go out on me » ok so not a good dream... out of control car, signifying her life is out of control as well
+            <br>
+            « i read somewhere it's cause my life feels so out of control » why does she keep stealing my analysis (i think double edged sword here? if one were to make it fully poetic and just heavily analysis based lyrics, they could exclude this line and leave it for the listener to infer "represents her life prob," but also stating it directly may serve its own purpose of "oh she's aware of it too")
+            <br>
+            « and i tell someone i love them just as a distraction » love is a smokescreen
+            <br>
+            « changing my machinery » directly ties in to the things previously: she's driving and her car is out of control, and then she says actually her life is out of control, so she "is" the car hence this sort of machine
+            <br>
+            « not what i imagined » another background music cut off here
+            <br> 
+            didn't mention this earlier but "dread," "head," "bed" rhyme scheme, obvious i know but just makes the lines flow better to lead up to the emotional payoff of repeating that same line "but it's me who's been making the bed"
+            <br>
+            « instrumental break » i think beyond lyrics, these sorts of instruments have their own voice too
+            <br>
+            surface level, the instruments are loud, sort of distorted, representing the out of controlness of the lyrics thus far
+            <br>
+            but also there are long hums with some shorter melodies playing throughout and on top of the hums
+            <br>
+            make of that what you will but i think it's symbolic of the repetitive nature of the real world with smaller things happening "on top" of it, yet the overall sound of it is loud and chaotic, yet simple with drawn out notes
+            <br>
+            return of the soft voice
+            <br>
+            « counting all the beautiful things i regret » beautiful things i regret is so, with lack of a better word, poetic? like if something's beautiful, isn't it kind of just a positive thing? why regret it?
+            <br>
+            i think ultimately there's beauty to be found in a lot of things, and regret can come after experiencing the full effects of things, in retrospect
+            <br>
+            but maybe there is a value in recognizing the beauty of things as it happens and living without these regrets
+            <br>
+            « making the bed, oh » the "oh" at the end is like two notes and they go down/lower, so maybe represents how the song is her emotional catharsis but doesn't really fix those things in her life? song might end on lower notes to show things are still "negative"? bit of an emotional ambiguity yet resolution to the song to give it a sense of finality
+            <br><br>
+            Also unrelated but maybe you see those Olivier Odorants in the bottom corners slightly! I know they're best known for scent but can't really have those in a website can we?
+            <br>
+            Hope to see you again tomorrow!
+            <br><br>
+            Love,
+            <br>
+            Tony
+        </div>
+        <button class="back-button" onclick="window.history.back()">← Back to Tree</button>
+    </div>
+
+    <!-- Hidden audio element -->
+    <audio id="audioPlayer" preload="auto" loop>
+        <source src="making-the-bed.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Spotify Player Bar -->
+    <div class="spotify-bar">
+        <div class="track-info">
+            <div class="album-art">
+                <img src="making-the-bed-cover.jpg" alt="making the bed">
+            </div>
+            <div class="track-details">
+                <div class="track-name">making the bed</div>
+                <div class="track-artist">Olivia Rodrigo</div>
+            </div>
+        </div>
+
+        <div class="player-controls">
+            <div class="control-buttons">
+                <button class="control-btn prev">⏮</button>
+                <button class="control-btn play" id="playBtn">⏸</button>
+                <button class="control-btn next">⏭</button>
+            </div>
+            <div class="progress-bar-container">
+                <span class="time" id="currentTime">0:00</span>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span class="time">3:18</span>
+            </div>
+        </div>
+
+        <div class="right-controls">
+            <div class="volume-control">
+                <div class="volume-icon" id="volumeIcon">🔊</div>
+                <div class="volume-bar" id="volumeBar">
+                    <div class="volume-fill" id="volumeFill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio player
+        const audio = document.getElementById('audioPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeEl = document.getElementById('currentTime');
+        const volumeBar = document.getElementById('volumeBar');
+        const volumeFill = document.getElementById('volumeFill');
+        const volumeIcon = document.getElementById('volumeIcon');
+
+        // Auto-play on load
+        audio.volume = 1;
+        audio.play().catch(e => {
+            console.log('Autoplay prevented:', e);
+            playBtn.textContent = '▶';
+        });
+
+        // Play/Pause
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.textContent = '⏸';
+            } else {
+                audio.pause();
+                playBtn.textContent = '▶';
+            }
+        });
+
+        // Update progress bar
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressFill.style.width = progress + '%';
+            
+            const mins = Math.floor(audio.currentTime / 60);
+            const secs = Math.floor(audio.currentTime % 60);
+            currentTimeEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        });
+
+        // Seek functionality
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = pos * audio.duration;
+        });
+
+        // Volume control
+        volumeBar.addEventListener('click', (e) => {
+            const rect = volumeBar.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            audio.volume = Math.max(0, Math.min(1, pos));
+            volumeFill.style.width = (pos * 100) + '%';
+            
+            if (audio.volume === 0) {
+                volumeIcon.textContent = '🔇';
+            } else if (audio.volume < 0.5) {
+                volumeIcon.textContent = '🔉';
+            } else {
+                volumeIcon.textContent = '🔊';
+            }
+        });
+
+        // Volume icon toggle mute
+        volumeIcon.addEventListener('click', () => {
+            if (audio.volume > 0) {
+                audio.dataset.prevVolume = audio.volume;
+                audio.volume = 0;
+                volumeFill.style.width = '0%';
+                volumeIcon.textContent = '🔇';
+            } else {
+                audio.volume = audio.dataset.prevVolume || 1;
+                volumeFill.style.width = (audio.volume * 100) + '%';
+                volumeIcon.textContent = audio.volume < 0.5 ? '🔉' : '🔊';
+            }
+        });
+
+        // Loop the audio
+        audio.addEventListener('ended', () => {
+            audio.currentTime = 0;
+            audio.play();
+        });
+
+        // Create fixed stars - points of reference
+        function createStars() {
+            const starCount = 35;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const top = Math.random() * 70;
+                const left = Math.random() * 100;
+                const size = Math.random() * 1.5 + 1;
+                
+                star.style.top = top + '%';
+                star.style.left = left + '%';
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                
+                document.body.appendChild(star);
+            }
+        }
+
+        createStars();
+    </script>
+</body>
+</html>
