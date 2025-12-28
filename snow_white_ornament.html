@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snow White · Jasmine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(
+                to bottom,
+                #1A1E24 0%,
+                #14171C 50%,
+                #0F1216 100%
+            );
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px 120px 20px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+        }
+
+        /* Soft ambient glow */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(255, 255, 255, 0.015) 0%,
+                transparent 60%
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Minimal stars */
+        .star {
+            position: fixed;
+            background: rgba(235, 238, 242, 0.25);
+            border-radius: 50%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Drifting snow particles */
+        .snow {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .snow.from-left {
+            animation: drift-from-left linear infinite;
+        }
+
+        .snow.from-top {
+            animation: drift-from-top linear infinite;
+        }
+
+        @keyframes drift-from-left {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(100vw, 80vh);
+            }
+        }
+
+        @keyframes drift-from-top {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(60vw, 100vh);
+            }
+        }
+
+        /* Jasmine flowers - atmospheric texture */
+        .jasmine {
+            position: fixed;
+            opacity: 0.25;
+            filter: blur(4px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Letter container */
+        .letter-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 800px;
+            background: rgba(20, 20, 20, 0.5);
+            border: 1px solid rgba(242, 242, 238, 0.1);
+            border-radius: 15px;
+            padding: 40px 40px 20px 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .letter-title {
+            color: #F2F2EE;
+            font-size: 2em;
+            font-weight: 300;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: 0.05em;
+            opacity: 0.95;
+        }
+
+        .letter-content {
+            width: 100%;
+            max-height: 450px;
+            overflow-y: auto;
+            background: rgba(15, 15, 15, 0.4);
+            border: 1px solid rgba(242, 242, 238, 0.08);
+            border-radius: 8px;
+            padding: 30px;
+            color: #F2F2EE;
+            font-size: 1.1em;
+            line-height: 2;
+            font-weight: 300;
+            font-family: 'Georgia', serif;
+            text-align: left;
+        }
+
+        .letter-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .letter-content::-webkit-scrollbar-track {
+            background: rgba(242, 242, 238, 0.05);
+            border-radius: 3px;
+        }
+
+        .letter-content::-webkit-scrollbar-thumb {
+            background: rgba(242, 242, 238, 0.2);
+            border-radius: 3px;
+        }
+
+        .letter-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(242, 242, 238, 0.3);
+        }
+
+        .back-button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: rgba(242, 242, 238, 0.05);
+            border: 1px solid rgba(242, 242, 238, 0.2);
+            border-radius: 8px;
+            color: #F2F2EE;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
+            font-weight: 300;
+        }
+
+        .back-button:hover {
+            background: rgba(242, 242, 238, 0.1);
+            border-color: rgba(242, 242, 238, 0.3);
+        }
+
+        /* Spotify player bar */
+        .spotify-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 90px;
+            background: #181818;
+            border-top: 1px solid #282828;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 100;
+        }
+
+        .track-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 0 0 30%;
+            min-width: 180px;
+        }
+
+        .album-art {
+            width: 56px;
+            height: 56px;
+            background: #282828;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .album-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .track-details {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .track-name {
+            color: #ffffff;
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            color: #b3b3b3;
+            font-size: 11px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist:hover {
+            color: #ffffff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .player-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 722px;
+            gap: 8px;
+        }
+
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .control-btn:hover {
+            color: #ffffff;
+        }
+
+        .control-btn.prev,
+        .control-btn.next {
+            font-size: 16px;
+        }
+
+        .control-btn.play {
+            background: #ffffff;
+            color: #000000;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+
+        .control-btn.play:hover {
+            transform: scale(1.06);
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .time {
+            color: #a7a7a7;
+            font-size: 11px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: #4d4d4d;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress-bar:hover .progress-fill::after {
+            opacity: 1;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #b3b3b3;
+            border-radius: 2px;
+            position: relative;
+            width: 0%;
+            transition: background 0.2s;
+        }
+
+        .progress-bar:hover .progress-fill {
+            background: #1db954;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 30%;
+            justify-content: flex-end;
+            min-width: 180px;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .volume-icon {
+            color: #b3b3b3;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .volume-icon:hover {
+            color: #ffffff;
+        }
+
+        .volume-bar {
+            width: 93px;
+            height: 4px;
+            background: #4d4d4d;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .volume-fill {
+            height: 100%;
+            background: #b3b3b3;
+            border-radius: 2px;
+            width: 100%;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .volume-bar:hover .volume-fill {
+            background: #1db954;
+        }
+
+        .volume-bar:hover .volume-fill::after {
+            opacity: 1;
+        }
+
+        .volume-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        /* Hidden audio element */
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="letter-container">
+        <h1 class="letter-title">Jasmine</h1>
+        <div class="letter-content">
+            Babe,
+            <br><br>
+            I know you like poems, and maybe this isn't as high level as you'd like, but I hope you enjoy it and its obvious to nonobvious messages.
+            <br><br>
+            Jasmine opens after the world's exhale,
+            <br>
+            Evermore, what blooms keeps pointing ahead.
+            <br>
+            A quiet sweetness moves without a name,
+            <br>
+            Nothing visible, yet all is changed now.
+            <br><br>
+            Even the world gently lowers its voice,
+            <br>
+            Through soft descents, arriving one by one.
+            <br>
+            Time now learns how to hold its own breath still,
+            <br>
+            Everything listening, patient, waiting.
+            <br><br>
+            Pale warmth lingers briefly upon the lips,
+            <br>
+            A quiet sweetness held against the cold.
+            <br>
+            Nothing wasted, dissolving as it meets.
+            <br><br>
+            In morning light, the world relearns its shape,
+            <br>
+            Lines now softened, distances made gentle.
+            <br>
+            On the horizon, vision learns to rest.
+            <br>
+            Vast fields resolve into a single truth,
+            <br>
+            Emerging light holds the whole view still now.
+            <br><br>
+            Yet glass encloses a small drifting world,
+            <br>
+            Only now arrival finds its rest here.
+            <br>
+            Under a gentle hold, my whole world rests.
+            <br><br>
+            Love,
+            <br>
+            희민이
+        </div>
+        <button class="back-button" onclick="window.history.back()">← Back to Tree</button>
+    </div>
+
+    <!-- Hidden audio element -->
+    <audio id="audioPlayer" preload="auto" loop>
+        <source src="snow-white.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Spotify Player Bar -->
+    <div class="spotify-bar">
+        <div class="track-info">
+            <div class="album-art">
+                <img src="snow-white-cover.jpg" alt="snow white">
+            </div>
+            <div class="track-details">
+                <div class="track-name">Snow White</div>
+                <div class="track-artist">Laufey</div>
+            </div>
+        </div>
+
+        <div class="player-controls">
+            <div class="control-buttons">
+                <button class="control-btn prev">⏮</button>
+                <button class="control-btn play" id="playBtn">⏸</button>
+                <button class="control-btn next">⏭</button>
+            </div>
+            <div class="progress-bar-container">
+                <span class="time" id="currentTime">0:00</span>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span class="time">3:14</span>
+            </div>
+        </div>
+
+        <div class="right-controls">
+            <div class="volume-control">
+                <div class="volume-icon" id="volumeIcon">🔊</div>
+                <div class="volume-bar" id="volumeBar">
+                    <div class="volume-fill" id="volumeFill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio player
+        const audio = document.getElementById('audioPlayer');
+        const playBtn = document.getElementById('playBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeEl = document.getElementById('currentTime');
+        const volumeBar = document.getElementById('volumeBar');
+        const volumeFill = document.getElementById('volumeFill');
+        const volumeIcon = document.getElementById('volumeIcon');
+
+        // Auto-play on load
+        audio.volume = 1;
+        audio.play().catch(e => {
+            console.log('Autoplay prevented:', e);
+            playBtn.textContent = '▶';
+        });
+
+        // Play/Pause
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.textContent = '⏸';
+            } else {
+                audio.pause();
+                playBtn.textContent = '▶';
+            }
+        });
+
+        // Update progress bar
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressFill.style.width = progress + '%';
+            
+            const mins = Math.floor(audio.currentTime / 60);
+            const secs = Math.floor(audio.currentTime % 60);
+            currentTimeEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        });
+
+        // Seek functionality
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = pos * audio.duration;
+        });
+
+        // Volume control
+        volumeBar.addEventListener('click', (e) => {
+            const rect = volumeBar.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            audio.volume = Math.max(0, Math.min(1, pos));
+            volumeFill.style.width = (pos * 100) + '%';
+            
+            if (audio.volume === 0) {
+                volumeIcon.textContent = '🔇';
+            } else if (audio.volume < 0.5) {
+                volumeIcon.textContent = '🔉';
+            } else {
+                volumeIcon.textContent = '🔊';
+            }
+        });
+
+        // Volume icon toggle mute
+        volumeIcon.addEventListener('click', () => {
+            if (audio.volume > 0) {
+                audio.dataset.prevVolume = audio.volume;
+                audio.volume = 0;
+                volumeFill.style.width = '0%';
+                volumeIcon.textContent = '🔇';
+            } else {
+                audio.volume = audio.dataset.prevVolume || 1;
+                volumeFill.style.width = (audio.volume * 100) + '%';
+                volumeIcon.textContent = audio.volume < 0.5 ? '🔉' : '🔊';
+            }
+        });
+
+        // Loop the audio
+        audio.addEventListener('ended', () => {
+            audio.currentTime = 0;
+            audio.play();
+        });
+
+        // Create minimal stars
+        function createStars() {
+            const starCount = 12;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const top = Math.random() * 60;
+                const left = Math.random() * 100;
+                const size = Math.random() * 1.2 + 0.8;
+                
+                star.style.top = top + '%';
+                star.style.left = left + '%';
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                
+                document.body.appendChild(star);
+            }
+        }
+
+        // Create jasmine flowers
+        function createJasmineFlowers() {
+            const positions = [
+                { top: '8%', left: '5%', size: 120, rotation: 25 },
+                { top: '15%', right: '8%', size: 140, rotation: -15 },
+                { bottom: '15%', left: '10%', size: 130, rotation: 45 },
+                { bottom: '20%', right: '6%', size: 150, rotation: -30 },
+                { top: '45%', left: '3%', size: 110, rotation: 60 },
+                { top: '50%', right: '4%', size: 125, rotation: -45 },
+                { bottom: '45%', left: '7%', size: 135, rotation: 15 }
+            ];
+
+            positions.forEach(pos => {
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.classList.add('jasmine');
+                svg.setAttribute('viewBox', '0 0 100 100');
+                svg.setAttribute('width', pos.size);
+                svg.setAttribute('height', pos.size);
+                svg.style.transform = `rotate(${pos.rotation}deg)`;
+                
+                if (pos.top) svg.style.top = pos.top;
+                if (pos.bottom) svg.style.bottom = pos.bottom;
+                if (pos.left) svg.style.left = pos.left;
+                if (pos.right) svg.style.right = pos.right;
+
+                // Create jasmine flower with 5 oval petals
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.setAttribute('transform', 'translate(50, 50)');
+
+                // Create 5 petals - oval shaped, wider at the ends
+                const petalPositions = [
+                    { angle: 0, cx: 0, cy: -28 },  // top
+                    { angle: 72, cx: 26.6, cy: -8.7 },  // top-right
+                    { angle: 144, cx: 16.4, cy: 22.7 }, // bottom-right
+                    { angle: 216, cx: -16.4, cy: 22.7 }, // bottom-left
+                    { angle: 288, cx: -26.6, cy: -8.7 }  // top-left
+                ];
+
+                petalPositions.forEach((petal, i) => {
+                    const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                    ellipse.setAttribute('cx', petal.cx);
+                    ellipse.setAttribute('cy', petal.cy);
+                    ellipse.setAttribute('rx', '12');  // width
+                    ellipse.setAttribute('ry', '20');  // length
+                    ellipse.setAttribute('fill', i % 2 === 0 ? '#FAF8F5' : '#F8F6F3');
+                    ellipse.setAttribute('opacity', '0.95');
+                    ellipse.setAttribute('transform', `rotate(${petal.angle} ${petal.cx} ${petal.cy})`);
+                    g.appendChild(ellipse);
+                });
+
+                // Center yellow circle
+                const center = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                center.setAttribute('cx', '0');
+                center.setAttribute('cy', '0');
+                center.setAttribute('r', '9');
+                center.setAttribute('fill', '#F4E8D0');
+                g.appendChild(center);
+
+                svg.appendChild(g);
+                document.body.appendChild(svg);
+            });
+        }
+
+        // Create drifting snow particles
+        function createSnow() {
+            const snowFromLeft = 15;
+            const snowFromTop = 15;
+            
+            // Snow from left side
+            for (let i = 0; i < snowFromLeft; i++) {
+                const snow = document.createElement('div');
+                snow.className = 'snow from-left';
+                
+                const top = Math.random() * 100;
+                const size = Math.random() * 2.5 + 1.5;
+                const duration = Math.random() * 20 + 25;
+                const delay = Math.random() * 15;
+                
+                snow.style.left = '-10px';
+                snow.style.top = top + '%';
+                snow.style.width = size + 'px';
+                snow.style.height = size + 'px';
+                snow.style.animationDuration = duration + 's';
+                snow.style.animationDelay = delay + 's';
+                
+                document.body.appendChild(snow);
+            }
+
+            // Snow from top
+            for (let i = 0; i < snowFromTop; i++) {
+                const snow = document.createElement('div');
+                snow.className = 'snow from-top';
+                
+                const left = Math.random() * 100;
+                const size = Math.random() * 2.5 + 1.5;
+                const duration = Math.random() * 20 + 25;
+                const delay = Math.random() * 15;
+                
+                snow.style.left = left + '%';
+                snow.style.top = '-10px';
+                snow.style.width = size + 'px';
+                snow.style.height = size + 'px';
+                snow.style.animationDuration = duration + 's';
+                snow.style.animationDelay = delay + 's';
+                
+                document.body.appendChild(snow);
+            }
+        }
+
+        createStars();
+        createJasmineFlowers();
+        createSnow();
+    </script>
+</body>
+</html>
