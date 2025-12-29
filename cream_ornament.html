@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beach · Cream Ornament</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(
+                to bottom,
+                #87CEEB 0%,
+                #B0D9E8 30%,
+                #E8D5B7 70%,
+                #D4B896 100%
+            );
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+        }
+
+        body.snowy {
+            background: linear-gradient(
+                to bottom,
+                #A8C5D9 0%,
+                #C0D5E3 30%,
+                #E8E8E8 70%,
+                #F0F0F0 100%
+            );
+        }
+
+        /* Ocean waves animation */
+        .wave {
+            position: absolute;
+            bottom: 30%;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 100"><path d="M0,50 Q150,20 300,50 T600,50 T900,50 T1200,50 L1200,100 L0,100 Z" fill="%234A90A4" opacity="0.4"/></svg>') repeat-x;
+            animation: wave 15s linear infinite;
+            opacity: 0.6;
+        }
+
+        .wave:nth-child(2) {
+            bottom: 25%;
+            animation: wave 20s linear infinite reverse;
+            opacity: 0.4;
+        }
+
+        .wave:nth-child(3) {
+            bottom: 20%;
+            animation: wave 25s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes wave {
+            0% { background-position-x: 0; }
+            100% { background-position-x: 1200px; }
+        }
+
+        /* Ocean base */
+        .ocean {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            background: linear-gradient(to bottom, #5BA3B8 0%, #4A90A4 100%);
+            z-index: 1;
+        }
+
+        body.snowy .ocean {
+            background: linear-gradient(to bottom, #6BA8B8 0%, #5A99A9 100%);
+        }
+
+        /* Beach sand */
+        .beach {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 25%;
+            background: linear-gradient(to bottom, #E8D5B7 0%, #D4B896 100%);
+            z-index: 2;
+        }
+
+        body.snowy .beach {
+            background: linear-gradient(to bottom, #F5F5F5 0%, #E8E8E8 100%);
+        }
+
+        /* Snow overlay on beach */
+        .snow-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 25%;
+            background: radial-gradient(ellipse at 20% 80%, rgba(255, 255, 255, 0.6) 0%, transparent 50%),
+                        radial-gradient(ellipse at 60% 70%, rgba(255, 255, 255, 0.5) 0%, transparent 40%),
+                        radial-gradient(ellipse at 85% 85%, rgba(255, 255, 255, 0.55) 0%, transparent 45%);
+            z-index: 3;
+            display: none;
+        }
+
+        body.snowy .snow-overlay {
+            display: block;
+        }
+
+        /* Snowflakes */
+        .snowflake {
+            position: fixed;
+            color: white;
+            font-size: 1.2em;
+            animation: snowfall linear infinite;
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 100;
+            display: none;
+        }
+
+        body.snowy .snowflake {
+            display: block;
+        }
+
+        @keyframes snowfall {
+            from {
+                transform: translateY(-10px) rotate(0deg);
+            }
+            to {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+
+        /* Clickable items */
+        .seashell {
+            position: absolute;
+            bottom: 12%;
+            left: 25%;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            z-index: 10;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .seashell:hover {
+            transform: scale(1.15) rotate(5deg);
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9));
+        }
+
+        .bottle {
+            position: absolute;
+            bottom: 28%;
+            right: 30%;
+            width: 60px;
+            height: 90px;
+            cursor: pointer;
+            z-index: 10;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .bottle:hover {
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9));
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) scale(1);
+            }
+            50% { 
+                transform: translateY(-10px) scale(1);
+            }
+        }
+
+        .bottle:hover {
+            animation: float-hover 3s ease-in-out infinite;
+        }
+
+        @keyframes float-hover {
+            0%, 100% { 
+                transform: translateY(0px) scale(1.15);
+            }
+            50% { 
+                transform: translateY(-10px) scale(1.15);
+            }
+        }
+
+        .towel {
+            position: absolute;
+            bottom: 8%;
+            right: 20%;
+            width: 120px;
+            height: 80px;
+            cursor: pointer;
+            z-index: 10;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+
+        .towel:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9));
+        }
+
+        /* Return to tree button */
+        .back-button {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(74, 144, 164, 0.5);
+            border-radius: 8px;
+            color: #4A90A4;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
+            font-weight: 400;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(74, 144, 164, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Sun */
+        .sun {
+            position: absolute;
+            top: 10%;
+            right: 15%;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #FFD700 0%, #FFA500 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.6);
+            z-index: 1;
+        }
+
+        body.snowy .sun {
+            background: radial-gradient(circle, #E8E8E8 0%, #D0D0D0 100%);
+            box-shadow: 0 0 40px rgba(200, 200, 200, 0.4);
+        }
+
+        /* Clouds */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 100px;
+            z-index: 1;
+        }
+
+        body.snowy .cloud {
+            background: rgba(220, 220, 220, 0.9);
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 100px;
+        }
+
+        body.snowy .cloud::before,
+        body.snowy .cloud::after {
+            background: rgba(220, 220, 220, 0.9);
+        }
+
+        .cloud1 {
+            width: 120px;
+            height: 40px;
+            top: 15%;
+            left: 10%;
+            animation: drift1 40s linear infinite;
+        }
+
+        .cloud1::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 20px;
+        }
+
+        .cloud1::after {
+            width: 60px;
+            height: 40px;
+            top: -15px;
+            right: 20px;
+        }
+
+        .cloud2 {
+            width: 100px;
+            height: 35px;
+            top: 25%;
+            right: 20%;
+            animation: drift2 50s linear infinite;
+        }
+
+        .cloud2::before {
+            width: 45px;
+            height: 45px;
+            top: -20px;
+            left: 15px;
+        }
+
+        .cloud2::after {
+            width: 50px;
+            height: 35px;
+            top: -12px;
+            right: 15px;
+        }
+
+        @keyframes drift1 {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(100vw); }
+        }
+
+        @keyframes drift2 {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100vw); }
+        }
+
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="sun"></div>
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="ocean"></div>
+    <div class="beach"></div>
+    <div class="snow-overlay"></div>
+
+    <!-- Seashell -->
+    <img src="seashell.png" class="seashell" onclick="location.href='seashell.html'" alt="seashell">
+
+    <!-- Message in a Bottle -->
+    <svg class="bottle" viewBox="0 0 60 90" onclick="location.href='bottle.html'">
+        <!-- Cork -->
+        <rect x="22" y="5" width="16" height="8" rx="2" fill="#8B4513"/>
+        <!-- Neck -->
+        <rect x="24" y="13" width="12" height="12" fill="rgba(135, 206, 235, 0.6)" stroke="#4A90A4" stroke-width="1.5"/>
+        <!-- Body -->
+        <path d="M20,25 L20,70 Q20,80 30,80 L30,80 Q40,80 40,70 L40,25 Z" fill="rgba(135, 206, 235, 0.6)" stroke="#4A90A4" stroke-width="1.5"/>
+        <!-- Message inside -->
+        <rect x="24" y="35" width="12" height="30" rx="1" fill="#F5F5DC" opacity="0.8"/>
+        <line x1="26" y1="40" x2="34" y2="40" stroke="#8B7355" stroke-width="0.5"/>
+        <line x1="26" y1="45" x2="34" y2="45" stroke="#8B7355" stroke-width="0.5"/>
+        <line x1="26" y1="50" x2="34" y2="50" stroke="#8B7355" stroke-width="0.5"/>
+        <!-- Shine effect -->
+        <ellipse cx="28" cy="35" rx="3" ry="8" fill="rgba(255, 255, 255, 0.4)"/>
+    </svg>
+
+    <!-- Beach Towel -->
+    <svg class="towel" viewBox="0 0 120 80" onclick="location.href='towel.html'">
+        <rect x="0" y="0" width="120" height="80" fill="#FF6B6B" rx="4"/>
+        <rect x="0" y="0" width="120" height="16" fill="#FFE66D"/>
+        <rect x="0" y="32" width="120" height="16" fill="#FFE66D"/>
+        <rect x="0" y="64" width="120" height="16" fill="#FFE66D"/>
+        <!-- Fringe effect -->
+        <g opacity="0.3">
+            <rect x="0" y="0" width="4" height="4" fill="#CC5555"/>
+            <rect x="116" y="0" width="4" height="4" fill="#CC5555"/>
+            <rect x="0" y="76" width="4" height="4" fill="#CC5555"/>
+            <rect x="116" y="76" width="4" height="4" fill="#CC5555"/>
+        </g>
+    </svg>
+
+    <button class="back-button" onclick="location.href='index.html'">← Return to Tree</button>
+
+    <audio id="beachAudio" preload="auto" loop>
+        <source id="audioSource" src="" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Check if this is the first visit
+        const hasVisited = localStorage.getItem('beachVisited');
+        let variant;
+
+        if (!hasVisited) {
+            // First visit - use beaches.mp3
+            variant = 1;
+            localStorage.setItem('beachVisited', 'true');
+        } else {
+            // Random selection between all three variants
+            variant = Math.floor(Math.random() * 3) + 1;
+        }
+
+        // Apply variant
+        const audio = document.getElementById('beachAudio');
+        const audioSource = document.getElementById('audioSource');
+
+        if (variant === 1) {
+            // Normal beach with beaches.mp3
+            audioSource.src = 'beaches.mp3';
+        } else if (variant === 2) {
+            // Snowy beach with snow-on-the-beach.mp3
+            document.body.classList.add('snowy');
+            audioSource.src = 'snow-on-the-beach.mp3';
+            createSnowflakes();
+        } else {
+            // Snowy beach with snow-on-the-beach-lana.mp3
+            document.body.classList.add('snowy');
+            audioSource.src = 'snow-on-the-beach-lana.mp3';
+            createSnowflakes();
+        }
+
+        // Load and play audio
+        audio.load();
+        audio.volume = 0.6;
+        audio.play().catch(e => console.log('Autoplay prevented:', e));
+
+        // Add click handler to play audio if autoplay was blocked
+        document.body.addEventListener('click', function() {
+            if (audio.paused) {
+                audio.play();
+            }
+        }, { once: true });
+
+        // Create snowflakes for snowy variants
+        function createSnowflakes() {
+            const snowflakeCount = 40;
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.innerHTML = '❄';
+                
+                const leftPos = Math.random() * 100;
+                const startTop = -(Math.random() * 100);
+                const duration = Math.random() * 4 + 3;
+                const delay = -(Math.random() * duration);
+                
+                snowflake.style.left = leftPos + '%';
+                snowflake.style.top = startTop + 'vh';
+                snowflake.style.animationDuration = duration + 's';
+                snowflake.style.animationDelay = delay + 's';
+                snowflake.style.fontSize = (Math.random() * 0.6 + 0.6) + 'em';
+                
+                document.body.appendChild(snowflake);
+            }
+        }
+    </script>
+</body>
+</html>
