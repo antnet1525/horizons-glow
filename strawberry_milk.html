@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strawberry Milk</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(
+                to bottom,
+                #F1B7C2 0%,
+                #E8A3B0 50%,
+                #DF8F9E 100%
+            );
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+        }
+
+        /* Soft ambient glow */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(255, 255, 255, 0.1) 0%,
+                transparent 60%
+            );
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Pink tulips - atmospheric texture */
+        .tulip {
+            position: fixed;
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 1;
+            width: 80px;
+            height: 200px;
+        }
+
+        .tulip-head {
+            position: absolute;
+            width: 80px;
+            height: 100px;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .petal {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+        }
+
+        .petal-1 {
+            border-bottom: 70px solid #F8CCD7;
+            left: 10px;
+            top: 20px;
+            transform: rotate(-27deg);
+        }
+
+        .petal-2 {
+            border-bottom: 60px solid #ff8081;
+            left: 20px;
+            top: 25px;
+            z-index: -1;
+            transform: rotate(-15deg);
+        }
+
+        .petal-3 {
+            border-bottom: 70px solid #F8CCD7;
+            left: 25px;
+            top: 20px;
+        }
+
+        .petal-4 {
+            border-bottom: 60px solid #ff8081;
+            left: 30px;
+            top: 25px;
+            z-index: -1;
+            transform: rotate(15deg);
+        }
+
+        .petal-5 {
+            border-bottom: 70px solid #F8CCD7;
+            left: 40px;
+            top: 20px;
+            transform: rotate(27deg);
+        }
+
+        .tulip-stem {
+            position: absolute;
+            height: 120px;
+            width: 6px;
+            border-radius: 50px;
+            background-color: #25af59;
+            left: 50%;
+            top: 80px;
+            transform: translateX(-50%);
+            z-index: -2;
+        }
+
+        .tulip-leaf {
+            position: absolute;
+            background-color: #139a3e;
+            width: 40px;
+            height: 40px;
+            border-radius: 90% 0 90% 0;
+            z-index: -2;
+        }
+
+        .tulip-leaf-left {
+            bottom: 20px;
+            left: -5px;
+            transform: rotate(90deg);
+        }
+
+        .tulip-leaf-right {
+            bottom: 50px;
+            right: -5px;
+            transform: rotate(-10deg);
+        }
+
+        /* Letter container */
+        .letter-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 800px;
+            background: rgba(235, 181, 212, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 40px 40px 20px 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .letter-title {
+            color: #8B2A4A;
+            font-size: 2em;
+            font-weight: 300;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        .letter-content {
+            width: 100%;
+            max-height: 450px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            padding: 30px;
+            color: #5A1F35;
+            font-size: 1.1em;
+            line-height: 2;
+            font-weight: 300;
+            font-family: 'Georgia', serif;
+            text-align: left;
+        }
+
+        .letter-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .letter-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .letter-content::-webkit-scrollbar-thumb {
+            background: rgba(139, 42, 74, 0.4);
+            border-radius: 3px;
+        }
+
+        .letter-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 42, 74, 0.6);
+        }
+
+        .back-button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            color: #8B2A4A;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
+            font-weight: 300;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.7);
+            border-color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Spotify player bar */
+        .spotify-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 90px;
+            background: #181818;
+            border-top: 1px solid #282828;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 100;
+        }
+
+        .track-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 0 0 30%;
+            min-width: 180px;
+        }
+
+        .album-art {
+            width: 56px;
+            height: 56px;
+            background: #282828;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .album-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .track-details {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .track-name {
+            color: #ffffff;
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist {
+            color: #b3b3b3;
+            font-size: 11px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .track-artist:hover {
+            color: #ffffff;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .player-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 722px;
+            gap: 8px;
+        }
+
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: #b3b3b3;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .control-btn:hover {
+            color: #ffffff;
+        }
+
+        .control-btn.prev,
+        .control-btn.next {
+            font-size: 16px;
+        }
+
+        .control-btn.play {
+            background: #ffffff;
+            color: #000000;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+
+        .control-btn.play:hover {
+            transform: scale(1.06);
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .time {
+            color: #a7a7a7;
+            font-size: 11px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: #4d4d4d;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .progress-bar:hover .progress-fill::after {
+            opacity: 1;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #b3b3b3;
+            border-radius: 2px;
+            position: relative;
+            width: 0%;
+            transition: background 0.2s;
+        }
+
+        .progress-bar:hover .progress-fill {
+            background: #1db954;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 30%;
+            justify-content: flex-end;
+            min-width: 180px;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .volume-icon {
+            color: #b3b3b3;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .volume-icon:hover {
+            color: #ffffff;
+        }
+
+        .volume-bar {
+            width: 93px;
+            height: 4px;
+            background: #4d4d4d;
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .volume-fill {
+            height: 100%;
+            background: #b3b3b3;
+            border-radius: 2px;
+            width: 100%;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .volume-bar:hover .volume-fill {
+            background: #1db954;
+        }
+
+        .volume-bar:hover .volume-fill::after {
+            opacity: 1;
+        }
+
+        .volume-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="letter-container">
+        <h1 class="letter-title">Extraordinary You</h1>
+        <div class="letter-content">
+            Dear,
+            <br><br>
+            You chose the right one!!
+            <br>
+            I'm assuming you recognize the significance of that selection!
+            <br>
+            Let's drink it together? From the same straw?
+            <br><br>
+            We should also finish Extraordinary You. Will you be the [main character's name] to my [main character love interest name]?
+            <br>
+            Oh yeah and of course you like tulips and your crew was pink and you like Frank Ocean so :)
+            <br>
+            I know this isn't hot pink but I wanted a bit of a softer tone to a) go with the ornament color theme and b) go with Frank Ocean vibe.
+            <br>
+            And no, I didn't forget to add a word after Dear in the first line of this message.
+            <br><br>
+            Feel free to look at what happens when you choose the other milk options!
+            <br><br>
+            Love,
+            <br>
+            anth
+        </div>
+        <button class="back-button" onclick="window.history.back()">← Back to Milk</button>
+    </div>
+
+    <audio id="audioPlayer" preload="auto" loop>
+        <source src="pink-white.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const audio = document.getElementById('audioPlayer');
+
+        // Auto-play on load
+        audio.volume = 1;
+        audio.play().catch(e => {
+            console.log('Autoplay prevented:', e);
+        });
+
+        function createTulips() {
+            const positions = [
+                { top: '5%', left: '3%', scale: 1, rotation: 15 },
+                { top: '10%', right: '5%', scale: 1.2, rotation: -20 },
+                { top: '40%', left: '2%', scale: 1.1, rotation: 35 },
+                { bottom: '10%', left: '6%', scale: 1.15, rotation: 45 },
+                { bottom: '15%', right: '3%', scale: 1.25, rotation: -15 },
+                { bottom: '40%', right: '7%', scale: 1, rotation: -40 }
+            ];
+
+            positions.forEach(pos => {
+                const container = document.createElement('div');
+                container.classList.add('tulip');
+                container.style.transform = `scale(${pos.scale}) rotate(${pos.rotation}deg)`;
+                
+                if (pos.top) container.style.top = pos.top;
+                if (pos.bottom) container.style.bottom = pos.bottom;
+                if (pos.left) container.style.left = pos.left;
+                if (pos.right) container.style.right = pos.right;
+
+                container.innerHTML = `
+                    <div class="tulip-head">
+                        <div class="petal petal-1"></div>
+                        <div class="petal petal-2"></div>
+                        <div class="petal petal-3"></div>
+                        <div class="petal petal-4"></div>
+                        <div class="petal petal-5"></div>
+                    </div>
+                    <div class="tulip-stem"></div>
+                    <div class="tulip-leaf tulip-leaf-left"></div>
+                    <div class="tulip-leaf tulip-leaf-right"></div>
+                `;
+
+                document.body.appendChild(container);
+            });
+        }
+
+        createTulips();
+    </script>
+</body>
+</html>

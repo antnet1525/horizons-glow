@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Flavor</title>
+    <style>
+        @font-face {
+            font-family: 'Binggrae';
+            src: url('binggrae.otf') format('opentype'),
+                 url('binggrae.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #F1B7C2;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px 80px 20px;
+            font-family: 'Binggrae', 'Georgia', serif;
+            position: relative;
+        }
+
+        .caption {
+            position: absolute;
+            top: 30px;
+            font-size: 2em;
+            color: #ffffff;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .milk-box {
+            width: 140px;
+            height: 200px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .milk-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0.2) 0%,
+                rgba(255, 255, 255, 0) 30%,
+                rgba(0, 0, 0, 0.05) 100%
+            );
+            pointer-events: none;
+        }
+
+        /* Milk box carton design */
+        .milk-carton {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 110px;
+            z-index: 1;
+        }
+
+        /* Top trapezoid (narrower at top, wider at bottom) - FLIPPED */
+        .carton-top {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 55px;
+            clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
+        }
+
+        /* Bottom trapezoid (wider at top, narrower at bottom) - FLIPPED */
+        .carton-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 55px;
+            clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
+        }
+
+        /* Carton cap */
+        .carton-cap {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 10px;
+            border-radius: 2px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+            z-index: 2;
+        }
+
+        /* Individual carton colors */
+        .melon .carton-top { background: #dee8cd; }
+        .melon .carton-bottom { background: #dee8cd; }
+        .melon .carton-cap { background: #66bd76; }
+
+        .banana .carton-top { background: #f6f2c5; }
+        .banana .carton-bottom { background: #f6f2c5; }
+        .banana .carton-cap { background: #638373; }
+
+        .strawberry .carton-top { background: #f9e9ea; }
+        .strawberry .carton-bottom { background: #f9e9ea; }
+        .strawberry .carton-cap { background: #f4957c; }
+
+        .lychee-peach .carton-top { background: #efe4df; }
+        .lychee-peach .carton-bottom { background: #efe4df; }
+        .lychee-peach .carton-cap { background: #c56055; }
+
+        .vanilla .carton-top { background: #f7fed9; }
+        .vanilla .carton-bottom { background: #f7fed9; }
+        .vanilla .carton-cap { background: #ab8445; }
+
+        .coffee .carton-top { background: #f6ecd6; }
+        .coffee .carton-bottom { background: #f6ecd6; }
+        .coffee .carton-cap { background: #d19f2d; }
+
+        .taro .carton-top { background: #e7d6e3; }
+        .taro .carton-bottom { background: #e7d6e3; }
+        .taro .carton-cap { background: #4f3569; }
+
+        .milk-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .flavor-name {
+            font-size: 1.4em;
+            font-weight: 600;
+            text-align: center;
+            z-index: 1;
+            line-height: 1.3;
+        }
+
+        /* Individual box colors */
+        .melon { background: #cce182; }
+        .melon .flavor-name { color: #137348; }
+
+        .banana { background: #f9ed35; }
+        .banana .flavor-name { color: #147d4e; }
+
+        .strawberry { background: #ebb5d4; }
+        .strawberry .flavor-name { color: #d31320; }
+
+        .lychee-peach { background: #e9e4c4; }
+        .lychee-peach .flavor-name { color: #8a1919; font-size: 1.1em; }
+
+        .vanilla { background: #fbfcfe; }
+        .vanilla .flavor-name { color: #103d81; }
+
+        .coffee { background: #f8e196; }
+        .coffee .flavor-name { color: #482315; }
+
+        .taro { background: #ddc9e0; }
+        .taro .flavor-name { color: #52227a; }
+
+        /* Modal overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .message-box {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: #e0e0e0;
+            color: #000;
+        }
+
+        .message-content {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .back-button {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            color: #333;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Binggrae', 'Georgia', serif;
+            font-weight: 400;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        audio {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .milk-box {
+                width: 120px;
+                height: 180px;
+            }
+
+            .caption {
+                font-size: 1.5em;
+                top: 20px;
+            }
+
+            .row {
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="caption">Choose carefully</div>
+
+    <div class="container">
+        <div class="row">
+            <div class="milk-box melon" data-flavor="melon">
+                <div class="flavor-name">Melon</div>
+                <div class="milk-carton">
+                    <div class="carton-cap"></div>
+                    <div class="carton-top"></div>
+                    <div class="carton-bottom"></div>
+                </div>
+            </div>
+            <div class="milk-box banana" data-flavor="banana">
+                <div class="flavor-name">Banana</div>
+                <div class="milk-carton">
+                    <div class="carton-cap"></div>
+                    <div class="carton-top"></div>
+                    <div class="carton-bottom"></div>
+                </div>
+            </div>
+            <div class="milk-box strawberry" data-flavor="strawberry">
+                <div class="flavor-name">Strawberry</div>
+                <div class="milk-carton">
+                    <div class="carton-cap"></div>
+                    <div class="carton-top"></div>
+                    <div class="carton-bottom"></div>
+                </div>
+            </div>
+            <div class="milk-box lychee-peach" data-flavor="lychee-peach">
+                <div class="flavor-name">Lychee<br>& Peach</div>
+                <div class="milk-carton">
+                    <div class="carton-cap"></div>
+                    <div class="carton-top"></div>
+                    <div class="carton-bottom"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="milk-box vanilla" data-flavor="vanilla">
+                <div class="flavor-name">Vanilla</div>
+                <div class="milk-carton">
+                    <div class="carton-cap"></div>
+                    <div class="carton-top"></div>
+                    <div class="carton-bottom"></div>
+                </div>
+            </div>
+            <div class="milk-box coffee" data-flavor="coffee">
+                <div class="flavor-name">Coffee</div>
+                <div class="milk-carton">
+                    <div class="carton-cap"></div>
+                    <div class="carton-top"></div>
+                    <div class="carton-bottom"></div>
+                </div>
+            </div>
+            <div class="milk-box taro" data-flavor="taro">
+                <div class="flavor-name">Taro</div>
+                <div class="milk-carton">
+                    <div class="carton-cap"></div>
+                    <div class="carton-top"></div>
+                    <div class="carton-bottom"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="back-button" onclick="window.location.href='index.html'">← Back to Tree</button>
+
+    <!-- Hidden audio element -->
+    <audio id="audioPlayer" preload="auto" loop>
+        <source src="jeopardy.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Modal overlay -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="message-box">
+            <button class="close-btn" id="closeBtn">✕</button>
+            <div class="message-content" id="messageContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-play background music
+        const audio = document.getElementById('audioPlayer');
+        audio.volume = 1;
+        audio.play().catch(e => {
+            console.log('Autoplay prevented:', e);
+        });
+
+        const messages = {
+            melon: "i get it green is one of your favorite colors but nope not melon",
+            banana: "they were out of banana (atl in the pic u sent me)",
+            'lychee-peach': "did not even know this existed highkey",
+            vanilla: "i am not vanilla",
+            coffee: "i thought u hated caffeine",
+            taro: "i complained to u this tastes bad ngl"
+        };
+
+        const milkBoxes = document.querySelectorAll('.milk-box');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const messageContent = document.getElementById('messageContent');
+        const closeBtn = document.getElementById('closeBtn');
+
+        milkBoxes.forEach(box => {
+            box.addEventListener('click', () => {
+                const flavor = box.dataset.flavor;
+                
+                // Special handling for strawberry
+                if (flavor === 'strawberry') {
+                    window.location.href = 'strawberry_milk.html';
+                    return;
+                }
+
+                // Show message for other flavors
+                messageContent.textContent = messages[flavor];
+                modalOverlay.classList.add('active');
+            });
+        });
+
+        // Close modal
+        closeBtn.addEventListener('click', () => {
+            modalOverlay.classList.remove('active');
+        });
+
+        // Close modal when clicking outside
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('active');
+            }
+        });
+
+        // Close with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                modalOverlay.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

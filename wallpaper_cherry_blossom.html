@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cherry Blossom Tree</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #F4D6D9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 20px 60px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        body.modal-open::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            z-index: 98;
+        }
+
+        /* Grass - covers bottom of screen and connects to tree */
+        .grass {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45vh;
+            background: linear-gradient(to top, #7cb342 0%, #8bc34a 40%, #9ccc65 80%, rgba(156, 204, 101, 0) 100%);
+            z-index: 3;
+        }
+
+        /* Tree container */
+        .tree-container {
+            position: relative;
+            width: 100%;
+            max-width: 540px;
+            height: 400px;
+            margin-top: 20px;
+            z-index: 2;
+        }
+
+        /* Tree trunk */
+        .tree-trunk {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 54px;
+            height: 315px;
+            background: linear-gradient(to right, #4a2f1a, #5d4037, #4a2f1a);
+            border-radius: 27px 27px 0 0;
+            z-index: 2;
+        }
+
+        /* Cherry blossom tree canopy */
+        .tree-canopy {
+            position: absolute;
+            bottom: 225px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 360px;
+            height: 225px;
+            z-index: 3;
+        }
+
+        .canopy-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, #FFB7C5 0%, #FFC0CB 40%, #FFD1DC 100%);
+            opacity: 0.9;
+        }
+
+        .canopy-circle:nth-child(1) {
+            width: 180px;
+            height: 180px;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .canopy-circle:nth-child(2) {
+            width: 162px;
+            height: 162px;
+            top: 36px;
+            left: 10%;
+        }
+
+        .canopy-circle:nth-child(3) {
+            width: 162px;
+            height: 162px;
+            top: 36px;
+            right: 10%;
+        }
+
+        .canopy-circle:nth-child(4) {
+            width: 135px;
+            height: 135px;
+            bottom: 0;
+            left: 25%;
+        }
+
+        .canopy-circle:nth-child(5) {
+            width: 135px;
+            height: 135px;
+            bottom: 0;
+            right: 25%;
+        }
+
+        /* Small petals that fade - petal shaped */
+        .small-petal {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 4;
+            opacity: 0;
+        }
+
+        .small-petal::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 30% 30%, #FFC0CB 0%, #FFB7C5 50%, rgba(255, 183, 197, 0.3) 100%);
+            border-radius: 50% 0 50% 0;
+        }
+
+        .small-petal::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 70% 70%, #FFD1DC 0%, #FFC0CB 50%, rgba(255, 192, 203, 0.2) 100%);
+            border-radius: 0 50% 0 50%;
+            transform: rotate(90deg);
+        }
+
+        @keyframes smallFall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            5% {
+                opacity: 0.8;
+            }
+            80% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Heart container */
+        .heart-container {
+            position: relative;
+            width: 100%;
+            max-width: 360px;
+            height: 360px;
+            margin-top: 45px;
+            z-index: 3;
+        }
+
+        /* Big leaf that falls into heart shape */
+        .big-leaf {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            background: radial-gradient(ellipse at center, #FFC0CB 0%, #FFB7C5 50%, #FFD1DC 100%);
+            border-radius: 50% 0 50% 0;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 4;
+        }
+
+        .big-leaf:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 16px rgba(255, 183, 197, 0.6);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(241, 183, 194, 0.7);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            z-index: 99;
+        }
+
+        .modal.active {
+            display: block;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -48%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            background: rgba(158, 42, 43, 0.1);
+            border: 2px solid rgba(158, 42, 43, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #9E2A2B;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(158, 42, 43, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-content {
+            color: #5D4037;
+            font-size: 1.1em;
+            line-height: 1.8;
+            text-align: center;
+        }
+
+        /* Pause animations when modal is open */
+        body.modal-open .small-petal,
+        body.modal-open .big-leaf {
+            animation-play-state: paused !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="grass"></div>
+
+    <div class="tree-container">
+        <div class="tree-trunk"></div>
+        <div class="tree-canopy">
+            <div class="canopy-circle"></div>
+            <div class="canopy-circle"></div>
+            <div class="canopy-circle"></div>
+            <div class="canopy-circle"></div>
+            <div class="canopy-circle"></div>
+        </div>
+    </div>
+
+    <div class="heart-container" id="heartContainer">
+        <!-- Big leaves will be added here by JavaScript -->
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-close" id="modalClose">×</div>
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+
+    <!-- Cherry blossom music audio -->
+    <audio id="cherryBlossomAudio" preload="auto" loop autoplay>
+        <source src="cherry-blossom.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Audio setup
+        const cherryBlossomAudio = document.getElementById('cherryBlossomAudio');
+        cherryBlossomAudio.volume = 0.5;
+        cherryBlossomAudio.play().catch(e => console.log('Autoplay prevented:', e));
+
+        // Add click handler to play audio if autoplay was blocked
+        document.body.addEventListener('click', function() {
+            if (cherryBlossomAudio.paused) {
+                cherryBlossomAudio.play();
+            }
+        }, { once: true });
+        // Heart shape coordinates (14 points forming a heart)
+        const heartPositions = [
+            { x: 108, y: 0 },
+            { x: 216, y: 153 },
+            { x: 18, y: 36 },
+            { x: 162, y: 36 },
+            { x: 270, y: 0 },
+            { x: 72, y: 117 },
+            { x: 54, y: 0 },
+            { x: 252, y: 117 },
+            { x: 216, y: 0 },
+            { x: 306, y: 36 },
+            { x: 36, y: 81 },
+            { x: 108, y: 153 },
+            { x: 162, y: 180 },
+            { x: 288, y: 81 }
+        ];
+
+        // Messages for each leaf
+        const leafMessages = [
+            "hey wanna know something? you look so cute!",
+            "mwah! 💋",
+            "thinking of you made me smile",
+            "i fall more in love with you everyday",
+            "i couldn't stop thinking of you today",
+            "your laugh is my favorite sound",
+            "you're more beautiful than the sunset",
+            "heyy gorgeouss i can't wait for jan 6th so i can see you again!",
+            "you're my first and last thought everyday",
+            "with every heartbeat, my love for you grows stronger",
+            "you're my little croissant",
+            "talking to you is the highlight of my day",
+            "every moment with you is a moment i cherish with all my heart",
+            "hey princess! i love you!"
+        ];
+
+        // Create small falling petals from tree
+        function createSmallPetals() {
+            const petalCount = 30;
+            const treeCenter = window.innerWidth / 2;
+            const treeTop = 120;
+            
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'small-petal';
+                
+                // Start from tree area (center +/- 200px range)
+                const leftOffset = (Math.random() - 0.5) * 400;
+                const left = ((treeCenter + leftOffset) / window.innerWidth) * 100;
+                
+                const duration = Math.random() * 4 + 4;
+                const delay = Math.random() * 5;
+                const size = Math.random() * 6 + 6;
+                
+                petal.style.left = left + '%';
+                petal.style.top = treeTop + 'px';
+                petal.style.width = size + 'px';
+                petal.style.height = size + 'px';
+                petal.style.animation = `smallFall ${duration}s linear infinite`;
+                petal.style.animationDelay = delay + 's';
+                
+                document.body.appendChild(petal);
+            }
+        }
+
+        // Create big leaves that fall into heart shape
+        function createBigLeaves() {
+            const container = document.getElementById('heartContainer');
+            const containerRect = container.getBoundingClientRect();
+            
+            heartPositions.forEach((pos, index) => {
+                const leaf = document.createElement('div');
+                leaf.className = 'big-leaf';
+                leaf.dataset.index = index;
+                
+                // Start position (from tree area)
+                const startX = containerRect.width / 2 - 18;
+                const startY = -300;
+                
+                leaf.style.left = startX + 'px';
+                leaf.style.top = startY + 'px';
+                
+                container.appendChild(leaf);
+                
+                // Animate to heart position with delay
+                setTimeout(() => {
+                    leaf.style.transition = 'all 2s cubic-bezier(0.4, 0, 0.2, 1)';
+                    leaf.style.opacity = '1';
+                    leaf.style.left = pos.x + 'px';
+                    leaf.style.top = pos.y + 'px';
+                    leaf.style.transform = `rotate(${Math.random() * 360}deg)`;
+                }, index * 1500);
+                
+                // Add click event
+                leaf.addEventListener('click', () => {
+                    showModal(leafMessages[index]);
+                });
+            });
+        }
+
+        // Modal functions
+        function showModal(message) {
+            const modal = document.getElementById('modal');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalContent.textContent = message;
+            modal.classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        // Close modal button
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+
+        // Close modal when clicking outside
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') {
+                closeModal();
+            }
+        });
+
+        // Initialize
+        createSmallPetals();
+        createBigLeaves();
+    </script>
+</body>
+</html>
