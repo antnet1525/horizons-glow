@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fireworks Together</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #1a1a3e 0%, #0a0a1e 50%, #000000 100%);
+            min-height: 100vh;
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+            position: relative;
+        }
+
+        /* Waxing Gibbous Moon */
+        .moon {
+            position: fixed;
+            top: 80px;
+            right: 150px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #fffef7, #f4f1de 40%, #e8dfc7);
+            box-shadow: 
+                0 0 40px rgba(244, 241, 222, 0.6),
+                0 0 80px rgba(244, 241, 222, 0.3);
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* Waxing gibbous shadow - crescent shaped */
+        .moon::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: -20px;
+            width: 70px;
+            height: 110px;
+            background: #1a1a3e;
+            border-radius: 50%;
+            box-shadow: 
+                -15px 0 20px rgba(26, 26, 62, 0.8),
+                -10px 0 30px rgba(26, 26, 62, 0.6);
+        }
+
+        /* Stars */
+        .star {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+        }
+
+        /* Silhouettes Container */
+        .silhouettes-container {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            z-index: 100;
+            filter: drop-shadow(0 0 10px rgba(199, 183, 217, 0.5));
+            transition: gap 1s ease, transform 1s ease;
+            cursor: pointer;
+        }
+
+        .silhouettes-container.closer {
+            gap: 2px;
+        }
+
+        .silhouette {
+            background: #0a0a1e;
+            border: 1px solid rgba(199, 183, 217, 0.4);
+            position: relative;
+            opacity: 1;
+            transition: transform 1s ease, z-index 0s 0.5s;
+        }
+
+        /* Layer tall person in front when leaning */
+        .silhouettes-container.leaning .silhouette.tall {
+            z-index: 2;
+        }
+
+        .silhouettes-container.leaning .silhouette.short {
+            z-index: 1;
+        }
+
+        /* Taller person */
+        .silhouette.tall {
+            width: 25px;
+            height: 50px;
+            border-radius: 40% 40% 0 0;
+        }
+
+        .silhouette.tall::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 15px;
+            background: #0a0a1e;
+            border: 1px solid rgba(199, 183, 217, 0.4);
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .silhouettes-container.leaning .silhouette.tall {
+            transform: rotate(8deg);
+            transform-origin: bottom center;
+        }
+
+        .silhouettes-container.kissing .silhouette.tall {
+            animation: kissAnimationTall 3s ease-in-out;
+        }
+
+        @keyframes kissAnimationTall {
+            0% { transform: rotate(8deg); }
+            25% { transform: rotate(0deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(0deg); }
+            100% { transform: rotate(8deg); }
+        }
+
+        .silhouettes-container.kissing .silhouette.tall::before {
+            animation: kissHeadTall 3s ease-in-out;
+        }
+
+        @keyframes kissHeadTall {
+            0% { transform: translateX(-50%) translateX(0); }
+            25% { transform: translateX(-50%) translateX(0); }
+            50% { transform: translateX(-50%) translateX(8px); }
+            75% { transform: translateX(-50%) translateX(8px); }
+            100% { transform: translateX(-50%) translateX(0); }
+        }
+
+        /* Shorter person */
+        .silhouette.short {
+            width: 22px;
+            height: 42px;
+            border-radius: 40% 40% 0 0;
+        }
+
+        .silhouette.short::before {
+            content: '';
+            position: absolute;
+            top: -11px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 13px;
+            height: 13px;
+            background: #0a0a1e;
+            border: 1px solid rgba(199, 183, 217, 0.4);
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .silhouettes-container.leaning .silhouette.short {
+            transform: rotate(-8deg);
+            transform-origin: bottom center;
+        }
+
+        .silhouettes-container.kissing .silhouette.short {
+            animation: kissAnimationShort 3s ease-in-out;
+        }
+
+        @keyframes kissAnimationShort {
+            0% { transform: rotate(-8deg); }
+            25% { transform: rotate(0deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(0deg); }
+            100% { transform: rotate(-8deg); }
+        }
+
+        .silhouettes-container.kissing .silhouette.short::before {
+            animation: kissHeadShort 3s ease-in-out;
+        }
+
+        @keyframes kissHeadShort {
+            0% { transform: translateX(-50%) translateX(0); }
+            25% { transform: translateX(-50%) translateX(0); }
+            50% { transform: translateX(-50%) translateX(-8px); }
+            75% { transform: translateX(-50%) translateX(-8px); }
+            100% { transform: translateX(-50%) translateX(0); }
+        }
+
+        /* Prompt Container */
+        #prompt-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            text-align: center;
+        }
+
+        #ready-text {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(199, 183, 217, 0.8);
+            font-weight: bold;
+        }
+
+        #yesBtn {
+            font-size: 1.5rem;
+            padding: 15px 50px;
+            cursor: pointer;
+            background: #C7B7D9;
+            border: 2px solid #fff;
+            border-radius: 12px;
+            color: #1a1a3e;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(199, 183, 217, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        #yesBtn:hover {
+            background: #d9cce6;
+            transform: scale(1.05);
+        }
+
+        /* Text below silhouettes */
+        .invitation-text {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 20px;
+            text-align: center;
+            z-index: 2;
+            text-shadow: 0 0 15px rgba(199, 183, 217, 0.9), 0 2px 10px rgba(0, 0, 0, 0.8);
+            white-space: nowrap;
+            animation: fadeIn 2s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Again button - below and centered with moon */
+        #againBtn {
+            position: fixed;
+            top: 200px;
+            right: 150px;
+            transform: translateX(50%);
+            z-index: 100;
+            font-size: 1.2rem;
+            padding: 12px 35px;
+            cursor: pointer;
+            background: #C7B7D9;
+            border: 2px solid #fff;
+            border-radius: 12px;
+            color: #1a1a3e;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(199, 183, 217, 0.5);
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        #againBtn:hover {
+            background: #d9cce6;
+            transform: translateX(50%) scale(1.05);
+        }
+
+        /* To Letter button - below Again button */
+        #letterBtn {
+            position: fixed;
+            top: 260px;
+            right: 150px;
+            transform: translateX(50%);
+            z-index: 100;
+            font-size: 1.2rem;
+            padding: 12px 35px;
+            cursor: pointer;
+            background: #C7B7D9;
+            border: 2px solid #fff;
+            border-radius: 12px;
+            color: #1a1a3e;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(199, 183, 217, 0.5);
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        #letterBtn:hover {
+            background: #d9cce6;
+            transform: translateX(50%) scale(1.05);
+        }
+
+        /* Back to Tree button */
+        #backBtn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 100;
+            font-size: 1rem;
+            padding: 10px 25px;
+            cursor: pointer;
+            background: #C7B7D9;
+            border: 2px solid #fff;
+            border-radius: 12px;
+            color: #1a1a3e;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(199, 183, 217, 0.5);
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        #backBtn:hover {
+            background: #d9cce6;
+            transform: scale(1.05);
+        }
+
+        /* Fireworks */
+        #fireworks-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .firework-rocket {
+            position: absolute;
+            bottom: 0;
+            width: 8px;
+            height: 8px;
+            pointer-events: none;
+        }
+
+        .firework-rocket-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 100%;
+            background: #C7B7D9;
+            box-shadow: 0 0 10px #C7B7D9;
+        }
+
+        .firework-spark {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 2px;
+            pointer-events: none;
+            opacity: 0.8;
+            background: #C7B7D9;
+            box-shadow: 0 0 5px #C7B7D9;
+        }
+
+        .firework-fragment {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 2px;
+            opacity: 0.9;
+            pointer-events: none;
+            box-shadow: 0 0 6px currentColor;
+        }
+    </style>
+</head>
+<body>
+    <audio id="backgroundMusic" loop>
+        <source src="new-years-piano.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="moon"></div>
+    
+    <div id="fireworks-container"></div>
+    
+    <div id="prompt-container">
+        <div id="ready-text">Ready?</div>
+        <button id="yesBtn">Yes</button>
+    </div>
+
+    <div class="silhouettes-container" id="silhouettes">
+        <div class="silhouette tall"></div>
+        <div class="silhouette short"></div>
+    </div>
+
+    <div class="invitation-text" id="invitationText" style="display: none;">You wanna go out and watch the fireworks together?</div>
+
+    <button id="againBtn">Again?</button>
+    <button id="letterBtn">To Letter</button>
+    <button id="backBtn">← Back to Tree</button>
+
+    <script>
+        // Create stars
+        function createStars() {
+            const starCount = 120;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const top = Math.random() * 70;
+                const left = Math.random() * 100;
+                const size = Math.random() * 2.5 + 0.5;
+                
+                star.style.top = top + '%';
+                star.style.left = left + '%';
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                
+                document.body.appendChild(star);
+            }
+        }
+
+        createStars();
+
+        // Generate 5-minute fireworks show (300 seconds)
+        const showDuration = 300000; // 5 minutes in ms
+        const fireworksData = [];
+        
+        // Phase 1: 0-30s - Slow start (every 3-4 seconds)
+        for (let t = 0; t < 30000; t += 3500) {
+            fireworksData.push(generateFirework(t, 'small-medium', false));
+        }
+        
+        // Phase 2: 30-60s - Building up (every 2-3 seconds)
+        for (let t = 30000; t < 60000; t += 2500) {
+            fireworksData.push(generateFirework(t, 'medium', false));
+            if (Math.random() > 0.7) {
+                fireworksData.push(generateFirework(t + 1000, 'medium', false));
+            }
+        }
+        
+        // Phase 3: 60-120s - Active (every 1.5-2 seconds, sometimes pairs)
+        for (let t = 60000; t < 120000; t += 1800) {
+            fireworksData.push(generateFirework(t, 'medium-large', true));
+            if (Math.random() > 0.5) {
+                fireworksData.push(generateFirework(t + 600, 'medium-large', true));
+            }
+        }
+        
+        // Phase 4: 120-180s - Very active (every 1-1.5 seconds, multiple launches)
+        for (let t = 120000; t < 180000; t += 1200) {
+            fireworksData.push(generateFirework(t, 'large', true));
+            fireworksData.push(generateFirework(t + 400, 'large', true));
+            if (Math.random() > 0.6) {
+                fireworksData.push(generateFirework(t + 800, 'medium-large', true));
+            }
+        }
+        
+        // Phase 5: 180-240s - Peak intensity (every 0.8-1 second, many launches)
+        for (let t = 180000; t < 240000; t += 900) {
+            fireworksData.push(generateFirework(t, 'large', true));
+            fireworksData.push(generateFirework(t + 300, 'large', true));
+            fireworksData.push(generateFirework(t + 600, 'large', true));
+        }
+        
+        // Phase 6: 240-295s - Grand finale buildup (every 0.5-0.8 seconds)
+        for (let t = 240000; t < 295000; t += 650) {
+            fireworksData.push(generateFirework(t, 'large', true));
+            fireworksData.push(generateFirework(t + 200, 'large', true));
+            fireworksData.push(generateFirework(t + 400, 'large', true));
+            if (Math.random() > 0.5) {
+                fireworksData.push(generateFirework(t + 500, 'large', true));
+            }
+        }
+        
+        // Ultimate finale at 295s - multiple ultra fireworks
+        for (let i = 0; i < 8; i++) {
+            fireworksData.push(generateFirework(295000 + i * 300, 'ultra', true));
+        }
+        
+        // FINAL FIREWORK: Giant Heart at 297.5s
+        fireworksData.push({
+            left: '50%',
+            color: '#ff69b4',
+            explosionType: 'heart',
+            size: 'mega',
+            launchTime: 297500
+        });
+
+        function generateFirework(launchTime, sizeRange, fancyPatterns) {
+            const positions = ['10%', '15%', '20%', '25%', '30%', '35%', '40%', '45%', '50%', '55%', '60%', '65%', '70%', '75%', '80%', '85%', '90%'];
+            const colors = [
+                '#ffffff', '#e6e6fa', '#C7B7D9', '#d8bfd8', '#b8a9c9', '#dcd0e8',
+                '#e0d5f0', '#cbb8dc', '#f0e6ff', '#d9cce6', '#c5b3d9', '#eae0f5',
+                '#ffc0cb', '#ffb6c1', '#dda0dd', '#ee82ee', '#da70d6', '#ba55d3',
+                '#9370db', '#8a7bc1', '#a8a4d9', '#b8b8dc', '#e6d5f0', '#f5e6ff'
+            ];
+            
+            const basicPatterns = ['circle', 'star', 'spiral', 'flower'];
+            const fancyPatternsList = ['heart', 'double-spiral', 'ring-of-rings', 'wave', 'swirl', 'triple-star', 'random-burst', 'galaxy'];
+            
+            let size;
+            if (sizeRange === 'small-medium') {
+                size = Math.random() > 0.5 ? 'small' : 'medium';
+            } else if (sizeRange === 'medium') {
+                size = 'medium';
+            } else if (sizeRange === 'medium-large') {
+                size = Math.random() > 0.5 ? 'medium' : 'large';
+            } else if (sizeRange === 'large') {
+                size = 'large';
+            } else if (sizeRange === 'ultra') {
+                size = 'ultra';
+            }
+            
+            const patterns = fancyPatterns ? [...basicPatterns, ...fancyPatternsList] : basicPatterns;
+            
+            return {
+                left: positions[Math.floor(Math.random() * positions.length)],
+                color: colors[Math.floor(Math.random() * colors.length)],
+                explosionType: patterns[Math.floor(Math.random() * patterns.length)],
+                size: size,
+                launchTime: launchTime
+            };
+        }
+
+        let showStarted = false;
+        let currentShowTimeouts = [];
+        let silhouettesState = 'initial'; // initial, closer, leaning
+
+        function clearAllTimeouts() {
+            currentShowTimeouts.forEach(timeout => clearTimeout(timeout));
+            currentShowTimeouts = [];
+        }
+
+        function startMainFireworkShow() {
+            showStarted = true;
+            clearAllTimeouts();
+            
+            const container = document.getElementById('fireworks-container');
+            const silhouettes = document.getElementById('silhouettes');
+            const againBtn = document.getElementById('againBtn');
+            const letterBtn = document.getElementById('letterBtn');
+            const backBtn = document.getElementById('backBtn');
+            const invitationText = document.getElementById('invitationText');
+
+            // Keep silhouettes in leaning state if already leaning
+            if (silhouettesState !== 'leaning') {
+                silhouettesState = 'initial';
+                silhouettes.classList.remove('closer', 'leaning', 'kissing');
+            }
+
+            // Hide buttons during show
+            againBtn.style.display = 'none';
+            letterBtn.style.display = 'none';
+            backBtn.style.display = 'none';
+            invitationText.style.display = 'none';
+
+            fireworksData.forEach((data) => {
+                const timeout = setTimeout(async () => {
+                    await playFireSound(data.size);
+                    launchRocketWithSound(container, data);
+                }, data.launchTime);
+                currentShowTimeouts.push(timeout);
+            });
+
+            // Move closer at 30 seconds
+            const closerTimeout = setTimeout(() => {
+                silhouettesState = 'closer';
+                silhouettes.classList.add('closer');
+            }, 30000);
+            currentShowTimeouts.push(closerTimeout);
+
+            // Lean on shoulders at 60 seconds
+            const leanTimeout = setTimeout(() => {
+                silhouettesState = 'leaning';
+                silhouettes.classList.add('leaning');
+            }, 60000);
+            currentShowTimeouts.push(leanTimeout);
+
+            // Show message after show ends (302 seconds)
+            const messageTimeout = setTimeout(() => {
+                invitationText.style.display = 'block';
+                
+                // Show buttons 5 seconds after message
+                setTimeout(() => {
+                    againBtn.style.display = 'block';
+                    letterBtn.style.display = 'block';
+                    backBtn.style.display = 'block';
+                }, 5000);
+            }, 302000);
+            currentShowTimeouts.push(messageTimeout);
+        }
+
+        function launchRocketWithSound(container, { left, color, explosionType, size }) {
+            const rocketEl = document.createElement('div');
+            rocketEl.className = 'firework-rocket';
+            rocketEl.style.left = left;
+
+            const rocketInner = document.createElement('div');
+            rocketInner.className = 'firework-rocket-inner';
+            rocketEl.appendChild(rocketInner);
+            container.appendChild(rocketEl);
+
+            const apex = 40 + Math.random() * 40;
+            const travelTime = 1500 + Math.random() * 500;
+
+            rocketEl.animate(
+                [
+                    { transform: 'translate(-50%, 0)' },
+                    { transform: `translate(-50%, -${apex}vh)` },
+                ],
+                {
+                    duration: travelTime,
+                    easing: 'ease-out',
+                    fill: 'forwards',
+                }
+            );
+
+            const trailInterval = setInterval(() => {
+                createSpark(container, rocketEl);
+            }, 70);
+
+            setTimeout(() => {
+                clearInterval(trailInterval);
+                explodeWithSound(container, rocketEl, color, explosionType, size);
+            }, travelTime);
+        }
+
+        function explodeWithSound(container, rocketEl, color, explosionType, size) {
+            const rect = rocketEl.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            rocketEl.remove();
+
+            playExplosionSound(size);
+
+            const pattern = getExplosionPattern(explosionType);
+            let fragmentCount = 40;
+            if (size === 'small') fragmentCount = 20;
+            if (size === 'medium') fragmentCount = 35;
+            if (size === 'large') fragmentCount = 55;
+            if (size === 'ultra') fragmentCount = 100;
+            if (size === 'mega') fragmentCount = 200;
+
+            for (let i = 0; i < fragmentCount; i++) {
+                const angle = pattern.angles && pattern.angles.length
+                    ? pattern.angles[i % pattern.angles.length]
+                    : Math.random() * 2 * Math.PI;
+
+                const magnitude = pattern.magnitude && pattern.magnitude.length
+                    ? pattern.magnitude[i % pattern.magnitude.length]
+                    : 1;
+
+                createFragment(container, centerX, centerY, color, angle, size, magnitude);
+            }
+        }
+
+        function createSpark(container, rocketEl) {
+            const rect = rocketEl.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const spark = document.createElement('div');
+            spark.className = 'firework-spark';
+            spark.style.left = `${centerX}px`;
+            spark.style.top = `${centerY}px`;
+            container.appendChild(spark);
+
+            spark.animate(
+                [
+                    { transform: 'translate(0,0)', opacity: 0.8 },
+                    { transform: 'translate(0, 20px)', opacity: 0 },
+                ],
+                {
+                    duration: 600,
+                    easing: 'ease-out',
+                    fill: 'forwards',
+                }
+            );
+
+            setTimeout(() => spark.remove(), 700);
+        }
+
+        function createFragment(container, x, y, color, angle, size, magnitude) {
+            const fragment = document.createElement('div');
+            fragment.className = 'firework-fragment';
+            fragment.style.backgroundColor = color;
+            fragment.style.left = `${x}px`;
+            fragment.style.top = `${y}px`;
+            container.appendChild(fragment);
+
+            const baseVelocity = size === 'small' ? 2 : size === 'large' ? 4 : size === 'ultra' ? 5 : size === 'mega' ? 6 : 3;
+            const velocity = baseVelocity * magnitude;
+            const offsetX = Math.cos(angle) * velocity * 40;
+            const offsetY = Math.sin(angle) * velocity * 40;
+            const duration = 2000 + Math.random() * 800;
+
+            fragment.animate(
+                [
+                    { transform: 'translate(0,0) scale(1)', opacity: 1 },
+                    { transform: `translate(${offsetX}px, ${offsetY}px) scale(0.3)`, opacity: 0 },
+                ],
+                {
+                    duration,
+                    easing: 'ease-out',
+                    fill: 'forwards',
+                }
+            );
+
+            setTimeout(() => fragment.remove(), duration + 100);
+        }
+
+        function getExplosionPattern(type) {
+            if (type === 'circle') {
+                const angles = Array.from({ length: 30 }, (_, i) => (i / 30) * 2 * Math.PI);
+                return { angles };
+            }
+            if (type === 'star') {
+                const angles = [];
+                for (let i = 0; i < 15; i++) {
+                    angles.push((i / 15) * 2 * Math.PI);
+                    angles.push(((i + 0.2) / 15) * 2 * Math.PI);
+                }
+                return { angles };
+            }
+            if (type === 'spiral') {
+                const angles = [];
+                for (let i = 0; i < 50; i++) {
+                    angles.push(i * 0.3);
+                }
+                const magnitude = angles.map((_, i) => 0.4 + i * 0.08);
+                return { angles, magnitude };
+            }
+            if (type === 'flower') {
+                const angles = [];
+                const magnitude = [];
+                for (let i = 0; i < 36; i++) {
+                    angles.push((2 * Math.PI * i) / 36);
+                    magnitude.push(i % 2 === 0 ? 1.2 : 0.7);
+                }
+                return { angles, magnitude };
+            }
+            if (type === 'heart') {
+                const angles = [];
+                const magnitude = [];
+                const points = 100;
+                
+                for (let i = 0; i < points; i++) {
+                    const t = (i / points) * 2 * Math.PI;
+                    
+                    // Parametric heart equation
+                    const x = 16 * Math.pow(Math.sin(t), 3);
+                    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                    
+                    // Convert to polar coordinates
+                    const angle = Math.atan2(y, x);
+                    const radius = Math.sqrt(x * x + y * y) / 20; // Scale down
+                    
+                    angles.push(angle);
+                    magnitude.push(radius);
+                }
+                
+                return { angles, magnitude };
+            }
+            if (type === 'double-spiral') {
+                const angles = [];
+                for (let i = 0; i < 40; i++) {
+                    angles.push((i / 10) * Math.PI);
+                }
+                const magnitude = angles.map((val, idx) => (idx % 2 === 0 ? 1 : 2));
+                return { angles, magnitude };
+            }
+            if (type === 'ring-of-rings') {
+                const angles = [];
+                const magnitude = [];
+                for (let ring = 1; ring <= 3; ring++) {
+                    for (let i = 0; i < 20; i++) {
+                        angles.push((2 * Math.PI * i) / 20);
+                        magnitude.push(ring);
+                    }
+                }
+                return { angles, magnitude };
+            }
+            if (type === 'wave') {
+                const angles = [];
+                const magnitude = [];
+                for (let i = 0; i < 40; i++) {
+                    const a = (i / 40) * 2 * Math.PI;
+                    angles.push(a);
+                    magnitude.push(1 + Math.sin(a * 4));
+                }
+                return { angles, magnitude };
+            }
+            if (type === 'swirl') {
+                const angles = [];
+                for (let i = 0; i < 60; i++) {
+                    angles.push(i * 0.2);
+                }
+                const magnitude = angles.map((_, i) => 0.5 + i * 0.04);
+                return { angles, magnitude };
+            }
+            if (type === 'triple-star') {
+                const angles = [];
+                for (let s = 0; s < 3; s++) {
+                    for (let i = 0; i < 15; i++) {
+                        angles.push((i / 15) * 2 * Math.PI);
+                        angles.push(((i + 0.2) / 15) * 2 * Math.PI);
+                    }
+                }
+                return { angles };
+            }
+            if (type === 'random-burst') {
+                const angles = Array.from({ length: 50 }, () => Math.random() * 2 * Math.PI);
+                const magnitude = Array.from({ length: 50 }, () => 0.5 + Math.random() * 2);
+                return { angles, magnitude };
+            }
+            if (type === 'galaxy') {
+                const angles = [];
+                const magnitude = [];
+                for (let i = 0; i < 80; i++) {
+                    const spiral = i * 0.5;
+                    angles.push(spiral);
+                    magnitude.push(0.3 + i * 0.03);
+                }
+                return { angles, magnitude };
+            }
+
+            const angles = Array.from({ length: 30 }, () => Math.random() * 2 * Math.PI);
+            const magnitude = Array.from({ length: 30 }, () => 0.5 + Math.random() * 1.5);
+            return { angles, magnitude };
+        }
+
+        async function playFireSound(size) {
+            if (Tone.context.state !== 'running') {
+                await Tone.start();
+            }
+
+            const now = Tone.now();
+            const noise = new Tone.NoiseSynth({
+                volume: -15,
+                noise: { type: 'brown' },
+                envelope: { attack: 0.05, decay: 0.5, sustain: 0, release: 0.2 },
+            }).toDestination();
+
+            noise.triggerAttackRelease(0.8, now);
+            setTimeout(() => noise.dispose(), 1500);
+        }
+
+        async function playExplosionSound(size) {
+            if (Tone.context.state !== 'running') {
+                await Tone.start();
+            }
+
+            const now = Tone.now();
+            
+            const reverb = new Tone.Reverb({ decay: 2, wet: 0.4 }).toDestination();
+            
+            const crackle = new Tone.NoiseSynth({
+                volume: -12,
+                noise: { type: 'white' },
+                envelope: { attack: 0, decay: 0.3, sustain: 0, release: 0.2 },
+            }).connect(reverb);
+
+            crackle.triggerAttackRelease(0.4, now);
+
+            const bass = new Tone.MembraneSynth({
+                volume: size === 'ultra' ? -5 : -10,
+                envelope: { attack: 0, decay: 0.6, sustain: 0, release: 1 },
+            }).connect(reverb);
+
+            bass.triggerAttackRelease('C1', '0.8', now);
+
+            setTimeout(() => {
+                crackle.dispose();
+                bass.dispose();
+                reverb.dispose();
+            }, 3000);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Start background music
+            const music = document.getElementById('backgroundMusic');
+            music.volume = 0.3;
+            music.play().catch(e => {
+                // Browser may block autoplay, will play when user clicks Yes
+                console.log('Autoplay blocked, will play on interaction');
+            });
+
+            const yesBtn = document.getElementById('yesBtn');
+            const promptContainer = document.getElementById('prompt-container');
+            const againBtn = document.getElementById('againBtn');
+            const letterBtn = document.getElementById('letterBtn');
+            const backBtn = document.getElementById('backBtn');
+            const silhouettes = document.getElementById('silhouettes');
+            
+            yesBtn.addEventListener('click', async () => {
+                await Tone.start();
+                
+                // Ensure music plays
+                music.play().catch(e => console.log('Music play failed:', e));
+                
+                promptContainer.style.display = 'none';
+                startMainFireworkShow();
+            });
+
+            // Again button restarts the show
+            againBtn.addEventListener('click', () => {
+                startMainFireworkShow();
+            });
+
+            // Letter button goes to letter page
+            letterBtn.addEventListener('click', () => {
+                window.location.href = 'new_years.html';
+            });
+
+            // Back button goes to tree
+            backBtn.addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+
+            // Click silhouettes to kiss (only after they're leaning)
+            let isKissing = false;
+            silhouettes.addEventListener('click', () => {
+                if (silhouettesState === 'leaning' && !isKissing) {
+                    isKissing = true;
+                    silhouettes.classList.add('kissing');
+                    
+                    setTimeout(() => {
+                        silhouettes.classList.remove('kissing');
+                        isKissing = false;
+                    }, 3000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
