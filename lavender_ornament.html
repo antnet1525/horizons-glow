@@ -765,12 +765,12 @@
                     const x = 16 * Math.pow(Math.sin(t), 3);
                     const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
                     
-                    // Convert to polar coordinates
+                    // Use the parametric angle directly instead of converting to polar
                     const angle = Math.atan2(y, x);
-                    const radius = Math.sqrt(x * x + y * y) / 20; // Scale down
+                    const radius = Math.sqrt(x * x + y * y) / 20;
                     
-                    angles.push(angle);
-                    magnitude.push(radius);
+                    angles.push(t); // Use t directly instead of angle
+                    magnitude.push(radius * 1.5); // Increase magnitude slightly for better visibility
                 }
                 
                 return { angles, magnitude };
