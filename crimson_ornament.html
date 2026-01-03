@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locker Love Letter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #F4D6D9 0%, #E8B4B8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Georgia', serif;
+            overflow: hidden;
+        }
+
+        /* Back button - always visible */
+        .back-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 12px 30px;
+            background: rgba(158, 42, 43, 0.9);
+            border: 2px solid rgba(158, 42, 43, 1);
+            border-radius: 8px;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: rgba(158, 42, 43, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(158, 42, 43, 0.4);
+        }
+
+        /* Locker container */
+        .locker-scene {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            perspective: 1000px;
+        }
+
+        .locker {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        /* Locker body */
+        .locker-body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4A7BA7 0%, #2E5A7D 100%);
+            border: 4px solid #1E3A5F;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Locker door - make fully clickable */
+        .locker-door {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #5A8DB8 0%, #3E6B8F 100%);
+            border: 4px solid #2E4A6F;
+            border-radius: 8px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: left;
+            transition: transform 1s ease;
+            cursor: pointer;
+            box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .locker-door.open {
+            transform: rotateY(-120deg);
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .locker-door:hover:not(.open) {
+            box-shadow: 0 0 20px rgba(158, 42, 43, 0.6), inset 0 2px 10px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Locker handle */
+        .locker-handle {
+            width: 60px;
+            height: 15px;
+            background: linear-gradient(135deg, #CCCCCC 0%, #999999 100%);
+            border: 2px solid #666666;
+            border-radius: 20px;
+            position: absolute;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+        }
+
+        /* Locker interior */
+        .locker-interior {
+            width: calc(100% - 8px);
+            height: calc(100% - 8px);
+            background: linear-gradient(135deg, #B8D4E8 0%, #9BB8D3 100%);
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.5s ease 0.5s;
+            z-index: 1;
+        }
+
+        .locker-door.open ~ .locker-interior {
+            opacity: 1;
+        }
+
+        /* Shelf */
+        .shelf {
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(135deg, #8B7355 0%, #6B5840 100%);
+            position: absolute;
+            top: 30%;
+            left: 0;
+            border-radius: 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Card on shelf */
+        .card {
+            width: 140px;
+            height: 95px;
+            background: linear-gradient(135deg, #9E2A2B 0%, #C94A4B 100%);
+            border: 3px solid #7A1A1B;
+            border-radius: 8px;
+            position: absolute;
+            top: calc(30% - 93px);
+            left: 15%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1em;
+            font-family: 'Brush Script MT', cursive;
+            opacity: 0;
+            transition: opacity 0.5s ease 1s, transform 0.3s ease, box-shadow 0.3s ease;
+            pointer-events: none;
+        }
+
+        .locker-door.open ~ .locker-interior .card {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(158, 42, 43, 0.8);
+        }
+
+        /* Rose vase container */
+        .rose-vase-wrapper {
+            position: absolute;
+            top: calc(30% - 150px);
+            right: 15%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transition: opacity 0.5s ease 1s, transform 0.3s ease;
+            pointer-events: none;
+            transform: scale(0.3);
+        }
+
+        .locker-door.open ~ .locker-interior .rose-vase-wrapper {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .rose-vase-wrapper:hover {
+            transform: scale(0.33);
+            filter: drop-shadow(0 0 15px rgba(158, 42, 43, 0.8));
+        }
+
+        /* Flower vase - flipped upside down */
+        .vase {
+            width: 110px;
+            height: 140px;
+            background: linear-gradient(135deg, rgba(173, 216, 230, 0.6) 0%, rgba(135, 206, 250, 0.5) 50%, rgba(173, 216, 230, 0.6) 100%);
+            border: 2px solid rgba(100, 149, 237, 0.4);
+            position: absolute;
+            bottom: 0;
+            left: 42%;
+            transform: translateX(-50%) translateY(20px) rotate(180deg);
+            clip-path: polygon(30% 0%, 70% 0%, 85% 100%, 15% 100%);
+            box-shadow: inset 0 2px 10px rgba(255, 255, 255, 0.3), 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Rose container from reference code */
+        .rose-container {
+            width: 100px;
+            height: 220px;
+            position: relative;
+        }
+
+        .rose-container div {
+            position: absolute;
+        }
+
+
+
+        .rose-petals > div {
+            background: #d52d58;
+            width: 45px;
+            height: 80px;
+            position: absolute;
+        }
+
+        .rose-petals > div:nth-child(1) {
+            border-radius: 15px;
+            left: 20px;
+            top: -6px;
+            background: #d52d58;
+        }
+
+        .rose-petals > div:nth-child(2),
+        .rose-petals > div:nth-child(4),
+        .rose-petals > div:nth-child(6) {
+            border-radius: 0px 30px 0px 30px;
+            background: #b81b43;
+            left: 0;
+            transform-origin: bottom right;
+        }
+
+        .rose-petals > div:nth-child(3),
+        .rose-petals > div:nth-child(5),
+        .rose-petals > div:nth-child(7) {
+            border-radius: 30px 0px 30px 0px;
+            left: 40px;
+            transform-origin: bottom left;
+        }
+
+        .rose-petals > div:nth-child(2) {
+            z-index: 5;
+            background: #9e183a;
+            top: 10px;
+            height: 70px;
+        }
+
+        .rose-petals > div:nth-child(3) {
+            z-index: 4;
+            background: #9e183a;
+            top: 10px;
+            height: 70px;
+        }
+
+        .rose-petals > div:nth-child(4) {
+            z-index: 3;
+            background: #b81b43;
+            top: 5px;
+            height: 75px;
+        }
+
+        .rose-petals > div:nth-child(5) {
+            z-index: 2;
+            background: #b81b43;
+            top: 5px;
+            height: 75px;
+        }
+
+        .rose-petals > div:nth-child(6) {
+            z-index: 1;
+            background: #c9204b;
+        }
+
+        .rose-petals > div:nth-child(7) {
+            z-index: 0;
+            background: #c9204b;
+        }
+
+        .rose-leaves > div:nth-last-child(1) {
+            width: 55px;
+            height: 30px;
+            background: #338f37;
+            position: absolute;
+            top: 50px;
+            left: 15px;
+            border-radius: 100px;
+        }
+
+        .rose-leaves > div:nth-child(1) {
+            width: 6px;
+            height: 180px;
+            border: none;
+            top: 60px;
+            background: #066406;
+            left: 40px;
+        }
+
+
+
+        /* Love letter overlay */
+        .letter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .letter-overlay.active {
+            display: flex;
+        }
+
+        .letter-paper {
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            background: #FFFEF0;
+            background-image: 
+                repeating-linear-gradient(
+                    transparent,
+                    transparent 31px,
+                    #E8E0C8 31px,
+                    #E8E0C8 32px
+                );
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .letter-paper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 60px;
+            width: 2px;
+            height: 100%;
+            background: #E8B4B8;
+        }
+
+        .letter-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #9E2A2B;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+
+        .letter-close:hover {
+            background: #7A1A1B;
+            transform: rotate(90deg);
+        }
+
+        .letter-text {
+            font-family: 'Brush Script MT', 'Comic Sans MS', cursive;
+            font-size: 1.3em;
+            line-height: 32px;
+            color: #2C2C2C;
+            padding-left: 20px;
+        }
+
+        /* Rose popup */
+        .rose-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            border: 3px solid #9E2A2B;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 600;
+            animation: popIn 0.3s ease;
+        }
+
+        .rose-popup.active {
+            display: block;
+        }
+
+        .rose-popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #9E2A2B;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+
+        .rose-popup-close:hover {
+            background: #7A1A1B;
+            transform: rotate(90deg);
+        }
+
+        .rose-popup-text {
+            color: #2C2C2C;
+            font-size: 1.1em;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes popIn {
+            from {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <audio id="backgroundMusic" loop>
+        <source src="number-one-girl.mp3" type="audio/mpeg">
+    </audio>
+
+    <button class="back-button" onclick="window.location.href='index.html'">← Back to Tree</button>
+
+    <div class="locker-scene">
+        <div class="locker">
+            <div class="locker-body">
+                <div class="locker-door" onclick="openLocker()">
+                    <div class="locker-handle"></div>
+                </div>
+                
+                <div class="locker-interior">
+                    <div class="shelf"></div>
+                    
+                    <div class="card" onclick="openLetter()">
+                        Open Me ♥
+                    </div>
+
+                    <div class="rose-vase-wrapper" onclick="showRoseMessage(event)">
+                        <div class="rose-container">
+                            <div class="rose-leaves">
+                                <div></div>
+                                <div></div>
+                            </div>
+                            <div class="rose-petals">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+                        <div class="vase"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="letter-overlay" id="letterOverlay">
+        <div class="letter-paper">
+            <button class="letter-close" onclick="closeLetter()">×</button>
+            <div class="letter-text">
+                Dear #1 Girl in the World,
+                <br><br>
+                I just wanted to let you know that every time I look at you, my heart skips a beat.
+                Every time I see your face, I smile.
+                Every time you glance at me, I get butterflies in my stomach.
+                <br>
+                I wanna tell you how you are the only one I think about, all day, all night.
+                <br>
+                Maybe love letters are a bit outdated, but I think you're so great and brilliant.
+                You're like a light that brightens up my day and illuminates every room you walk into.
+                <br>
+                I love your eyes and your hair and everything about you and I'd love to get to know you more!
+                <br>
+                Maybe you'll figure out who this is from but until then, I'll be quietly attracted to you!
+                <br><br>
+                Forever yours,<br>
+                Your Secret Admirer
+            </div>
+        </div>
+    </div>
+
+    <div class="rose-popup" id="rosePopup">
+        <button class="rose-popup-close" onclick="closeRosePopup()">×</button>
+        <div class="rose-popup-text">
+            This rose is a symbol of my love for you. The deep hues of the rose represent my deep love and desires, I hope you enjoy!
+        </div>
+    </div>
+
+    <script>
+        // Play background music at medium volume
+        const music = document.getElementById('backgroundMusic');
+        music.volume = 0.5;
+        
+        // Attempt to play music on page load
+        music.play().catch(e => {
+            // If autoplay is blocked, play on first user interaction
+            document.body.addEventListener('click', () => {
+                music.play();
+            }, { once: true });
+        });
+
+        function openLocker() {
+            const door = document.querySelector('.locker-door');
+            door.classList.add('open');
+        }
+
+        function openLetter() {
+            document.getElementById('letterOverlay').classList.add('active');
+        }
+
+        function closeLetter() {
+            document.getElementById('letterOverlay').classList.remove('active');
+        }
+
+        function showRoseMessage(event) {
+            event.stopPropagation();
+            document.getElementById('rosePopup').classList.add('active');
+        }
+
+        function closeRosePopup() {
+            document.getElementById('rosePopup').classList.remove('active');
+        }
+
+        // Close overlays when clicking outside
+        document.getElementById('letterOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLetter();
+            }
+        });
+    </script>
+</body>
+</html>
