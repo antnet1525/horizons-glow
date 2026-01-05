@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daffodils</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(to bottom, #FFE89D 0%, #F6C945 30%, #DBA73B 60%, #C89332 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+            font-family: 'Georgia', serif;
+        }
+
+        /* Decorative daffodils - just flowers, no stems */
+        .decorative-daffodil {
+            position: fixed;
+            opacity: 0.7;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .daffodil-flower {
+            width: 12px;
+            position: relative;
+        }
+
+        .pollen {
+            left: -15px;
+            top: -2px;
+            z-index: 101;
+            width: 42px;
+            height: 42px;
+            border-radius: 50px;
+            position: absolute;
+            background: #ca4a00;
+        }
+
+        .leaf {
+            position: absolute;
+            background: #f1e34e;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #b7ac3a;
+        }
+
+        .leaf.first {
+            top: -20px;
+            left: -50px;
+            transform: rotate(-5deg);
+            border-radius: 50px;
+            border-top-left-radius: 0;
+        }
+
+        .leaf.second {
+            top: -35px;
+            left: -15px;
+            transform: rotate(-45deg);
+            border-radius: 50px;
+            border-top-right-radius: 0;
+        }
+
+        .leaf.third {
+            top: -20px;
+            left: 20px;
+            transform: rotate(5deg);
+            border-radius: 50px;
+            border-top-right-radius: 0;
+        }
+
+        .leaf.forth {
+            top: 15px;
+            left: 20px;
+            transform: rotate(-30deg);
+            border-radius: 50px;
+            border-bottom-right-radius: 0;
+        }
+
+        .leaf.fifth {
+            top: 30px;
+            left: -15px;
+            transform: rotate(-45deg);
+            border-radius: 50px;
+            border-bottom-left-radius: 0;
+        }
+
+        .leaf.sixth {
+            top: 15px;
+            left: -50px;
+            transform: rotate(30deg);
+            border-radius: 50px;
+            border-bottom-left-radius: 0;
+        }
+
+        /* Letter container */
+        .letter-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 700px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid #F6C945;
+            border-radius: 15px;
+            padding: 50px;
+            box-shadow: 0 10px 50px rgba(246, 201, 69, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .letter-title {
+            color: #C89332;
+            font-size: 2.5em;
+            font-weight: 300;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        .letter-content {
+            color: #2c3e50;
+            font-size: 1.15em;
+            line-height: 2;
+            text-align: left;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .letter-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .letter-content::-webkit-scrollbar-track {
+            background: rgba(246, 201, 69, 0.1);
+            border-radius: 4px;
+        }
+
+        .letter-content::-webkit-scrollbar-thumb {
+            background: rgba(246, 201, 69, 0.5);
+            border-radius: 4px;
+        }
+
+        .letter-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(246, 201, 69, 0.7);
+        }
+
+        /* Back button */
+        #backBtn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 100;
+            font-size: 1rem;
+            padding: 10px 25px;
+            cursor: pointer;
+            background: #F6C945;
+            border: 2px solid #fff;
+            border-radius: 12px;
+            color: #333;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(246, 201, 69, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        #backBtn:hover {
+            background: #FFE89D;
+            transform: scale(1.05);
+        }
+
+        /* Floating animation for decorative daffodils */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+        }
+
+        .decorative-daffodil {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .decorative-daffodil:nth-child(2n) {
+            animation-duration: 7s;
+            animation-delay: 1s;
+        }
+
+        .decorative-daffodil:nth-child(3n) {
+            animation-duration: 8s;
+            animation-delay: 2s;
+        }
+    </style>
+</head>
+<body>
+    <audio id="backgroundMusic" loop autoplay>
+        <source src="daylight.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="letter-container">
+        <h1 class="letter-title">Clear Yellow</h1>
+        <div class="letter-content">
+            Dear (non) girlfriend,
+            <br><br>
+            Daffodils represent rebirth, hope, good fortune, and above all, joy. I think with us, these are so important with us.
+            <br>
+            I think what we have has changed a lot throughout this break, in a lot of really great ways, so lots of hope!
+            <br>
+            It's also like marking the arrival of spring, and while it's not spring, it is the arrival of each of us onto campus as we reunite.
+            <br>
+            And with the previous screen? The gray is like the time we spent apart, and how seeing each other again is this like clarity!
+            <br><br>
+            There's a lot more symbolism here, but I'll leave it at that to make it sort of more open ended.
+            <br><br>
+            I really really love you and I'm so excited to see you again hehe.
+            <br>
+            One more ornament already! Hope you've been enjoying them so far love.
+            <br><br>
+            With all my love,
+            <br>
+            Your (non) boyfriend
+        </div>
+    </div>
+
+    <button id="backBtn">← Back to Field</button>
+
+    <script>
+        const music = document.getElementById('backgroundMusic');
+        
+        // Play music
+        music.volume = 0.4;
+        music.play().catch(e => console.log('Autoplay blocked:', e));
+
+        // Create decorative daffodils - just the flower part
+        function createDaffodilFlowerHTML() {
+            return `
+                <div class="daffodil-flower">
+                    <div class="pollen"></div>
+                    <div class="leaf first"></div>
+                    <div class="leaf second"></div>
+                    <div class="leaf third"></div>
+                    <div class="leaf forth"></div>
+                    <div class="leaf fifth"></div>
+                    <div class="leaf sixth"></div>
+                </div>
+            `;
+        }
+
+        // Place decorative daffodils around the page
+        const positions = [
+            { top: '10%', left: '5%', scale: 1.2 },
+            { top: '15%', right: '8%', scale: 1.4 },
+            { top: '40%', left: '3%', scale: 1.1 },
+            { top: '45%', right: '5%', scale: 1.3 },
+            { bottom: '15%', left: '7%', scale: 1.2 },
+            { bottom: '20%', right: '10%', scale: 1.5 },
+            { top: '60%', left: '8%', scale: 1.3 },
+            { top: '65%', right: '6%', scale: 1.1 }
+        ];
+
+        positions.forEach(pos => {
+            const daffodil = document.createElement('div');
+            daffodil.className = 'decorative-daffodil';
+            daffodil.innerHTML = createDaffodilFlowerHTML();
+            
+            if (pos.top) daffodil.style.top = pos.top;
+            if (pos.bottom) daffodil.style.bottom = pos.bottom;
+            if (pos.left) daffodil.style.left = pos.left;
+            if (pos.right) daffodil.style.right = pos.right;
+            
+            // Apply scale to the inner flower element to preserve it during animation
+            const flower = daffodil.querySelector('.daffodil-flower');
+            if (flower) {
+                flower.style.transform = `scale(${pos.scale})`;
+            }
+            
+            document.body.appendChild(daffodil);
+        });
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'clear_yellow_ornament.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Morning Before</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Georgia', serif;
+            cursor: crosshair;
+            position: relative;
+        }
+
+        /* Background layer - daffodil field */
+        #background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, #87CEEB 0%, #B0E0E6 40%, #F6C945 70%, #DBA73B 85%, #C89332 100%);
+            z-index: 1;
+        }
+
+        /* Sun */
+        .sun {
+            position: absolute;
+            top: 15%;
+            right: 20%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, #FFF9E6 0%, #F6C945 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 80px rgba(246, 201, 69, 0.8);
+            z-index: 2;
+        }
+
+        /* Daffodil styling */
+        .daffodil-container {
+            position: absolute;
+            cursor: default;
+            transition: filter 0.3s ease;
+            z-index: 2;
+        }
+
+        .daffodil-container.clickable {
+            cursor: pointer;
+        }
+
+        .daffodil-container.clickable:hover,
+        .daffodil-container.highlight {
+            filter: brightness(1.3) drop-shadow(0 0 10px rgba(246, 201, 69, 0.8));
+        }
+
+        .daffodil {
+            width: 12px;
+            position: relative;
+        }
+
+        .footstalk {
+            width: 12px;
+            height: 200px;
+            display: inline-block;
+            background: linear-gradient(to right, rgba(80,109,59,1) 0%, rgba(36,68,24,1) 40%, rgba(46,71,24,1) 100%);
+        }
+
+        .pollen {
+            left: -15px;
+            top: -2px;
+            z-index: 101;
+            width: 42px;
+            height: 42px;
+            border-radius: 50px;
+            position: absolute;
+            background: #ca4a00;
+        }
+
+        .leaf {
+            position: absolute;
+            background: #f1e34e;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #b7ac3a;
+        }
+
+        .leaf.first {
+            top: -20px;
+            left: -50px;
+            transform: rotate(-5deg);
+            border-radius: 50px;
+            border-top-left-radius: 0;
+        }
+
+        .leaf.second {
+            top: -35px;
+            left: -15px;
+            transform: rotate(-45deg);
+            border-radius: 50px;
+            border-top-right-radius: 0;
+        }
+
+        .leaf.third {
+            top: -20px;
+            left: 20px;
+            transform: rotate(5deg);
+            border-radius: 50px;
+            border-top-right-radius: 0;
+        }
+
+        .leaf.forth {
+            top: 15px;
+            left: 20px;
+            transform: rotate(-30deg);
+            border-radius: 50px;
+            border-bottom-right-radius: 0;
+        }
+
+        .leaf.fifth {
+            top: 30px;
+            left: -15px;
+            transform: rotate(-45deg);
+            border-radius: 50px;
+            border-bottom-left-radius: 0;
+        }
+
+        .leaf.sixth {
+            top: 15px;
+            left: -50px;
+            transform: rotate(30deg);
+            border-radius: 50px;
+            border-bottom-left-radius: 0;
+        }
+
+        .footstalk-leaf {
+            transform: scale(2, 5);
+            position: absolute;
+            z-index: 102;
+            width: 10px;
+            height: 100px;
+            border-radius: 50px;
+            border-bottom-right-radius: 0;
+            background: linear-gradient(to right, rgba(84,155,73,1) 0%, rgba(49,104,42,1) 100%);
+        }
+
+        .footstalk-leaf.first {
+            left: -20px;
+            top: 105px;
+            transform: rotate(-25deg);
+        }
+
+        .footstalk-leaf.second {
+            left: 20px;
+            top: 105px;
+            transform: rotate(15deg);
+        }
+
+        /* Text phrases in sky */
+        .phrase {
+            position: absolute;
+            color: #FFFFFF;
+            font-size: 2.5em;
+            font-weight: 300;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: opacity 1s ease;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .phrase.visible {
+            opacity: 1;
+        }
+
+        #phrase1 {
+            top: 20%;
+            left: 15%;
+        }
+
+        #phrase2 {
+            top: 25%;
+            right: 25%;
+        }
+
+        #phrase3 {
+            top: 30%;
+            left: 40%;
+        }
+
+        /* Canvas for clearing effect - positioned above everything */
+        #clearCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            cursor: crosshair;
+            transition: opacity 1s ease;
+        }
+
+        #clearCanvas.fading {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Back button */
+        #backBtn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 11;
+            font-size: 1rem;
+            padding: 10px 25px;
+            cursor: pointer;
+            background: #F6C945;
+            border: 2px solid #fff;
+            border-radius: 12px;
+            color: #333;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(246, 201, 69, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        #backBtn:hover {
+            background: #FFE89D;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <audio id="backgroundMusic" loop autoplay>
+        <source src="daylight.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="background">
+        <div class="sun"></div>
+        
+        <!-- Text phrases -->
+        <div class="phrase" id="phrase1">one more ornament</div>
+        <div class="phrase" id="phrase2">we're almost there</div>
+        <div class="phrase" id="phrase3">i love you</div>
+
+        <!-- Daffodils will be added by JavaScript -->
+    </div>
+
+    <canvas id="clearCanvas"></canvas>
+    <button id="backBtn">← Back to Tree</button>
+
+    <script>
+        const canvas = document.getElementById('clearCanvas');
+        const ctx = canvas.getContext('2d');
+        const background = document.getElementById('background');
+        const music = document.getElementById('backgroundMusic');
+
+        // Set canvas size
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Play music
+        music.volume = 0.4;
+        music.play().catch(e => console.log('Autoplay blocked:', e));
+
+        // Initialize canvas with gray
+        ctx.fillStyle = '#5A5A5A';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        let isClearing = false;
+        let clearedPercentage = 0;
+        let isFullyCleared = false;
+
+        function createDaffodilHTML() {
+            return `
+                <div class="daffodil">
+                    <div class="pollen"></div>
+                    <span class="leaf first"></span>
+                    <span class="leaf second"></span>
+                    <span class="leaf third"></span>
+                    <span class="leaf forth"></span>
+                    <span class="leaf fifth"></span>
+                    <span class="leaf sixth"></span>
+                    <div class="main-body"></div>
+                    <div class="footstalk"></div>
+                    <div class="footstalk-leaf first"></div>
+                    <div class="footstalk-leaf second"></div>
+                </div>
+            `;
+        }
+
+        // Create daffodils with hardcoded positions
+        const daffodilPositions = [
+            { left: 10, top: 80, scale: 0.9, zIndex: 5 },
+            { left: 15, top: 79, scale: 0.92, zIndex: 5 },
+            { left: 18, top: 74, scale: 1.1, zIndex: 6 },
+            { left: 22, top: 77, scale: 1.0, zIndex: 4 },
+            { left: 25, top: 78, scale: 0.85, zIndex: 5 },
+            { left: 32, top: 75, scale: 1.2, zIndex: 10 },
+            { left: 35, top: 78, scale: 1.08, zIndex: 7 },
+            { left: 40, top: 81, scale: 0.95, zIndex: 6 },
+            { left: 43, top: 75, scale: 1.05, zIndex: 7 },
+            { left: 48, top: 79, scale: 1.05, zIndex: 7 },
+            { left: 50, top: 75, scale: 0.95, zIndex: 4 },
+            { left: 55, top: 81, scale: 0.9, zIndex: 4 },
+            { left: 58, top: 79, scale: 0.93, zIndex: 5 },
+            { left: 63, top: 78, scale: 1.15, zIndex: 9 },
+            { left: 65, top: 74, scale: 1.12, zIndex: 9 },
+            { left: 70, top: 75, scale: 1.0, zIndex: 6 },
+            { left: 75, top: 80, scale: 0.87, zIndex: 2 },
+            { left: 78, top: 76, scale: 0.88, zIndex: 3 },
+            { left: 85, top: 73, scale: 1.1, zIndex: 8 },
+            { left: 88, top: 81, scale: 0.98, zIndex: 6 }
+        ];
+
+        const daffodils = [];
+
+        daffodilPositions.forEach((pos, i) => {
+            const container = document.createElement('div');
+            container.className = 'daffodil-container';
+            container.innerHTML = createDaffodilHTML();
+            
+            container.style.left = pos.left + '%';
+            container.style.top = pos.top + '%';
+            container.style.transform = `scale(${pos.scale})`;
+            container.style.zIndex = pos.zIndex;
+            container.dataset.scale = pos.scale; // Store original scale
+            
+            background.appendChild(container);
+            daffodils.push(container);
+        });
+
+        // Clearing function
+        function clearGray(x, y) {
+            const brushSize = 50;
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(x, y, brushSize, 0, Math.PI * 2);
+            ctx.fill();
+            
+            calculateClearedPercentage();
+        }
+
+        // Calculate cleared percentage
+        function calculateClearedPercentage() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imageData.data;
+            let clearedPixels = 0;
+            
+            for (let i = 3; i < pixels.length; i += 4) {
+                if (pixels[i] === 0) clearedPixels++;
+            }
+            
+            clearedPercentage = (clearedPixels / (pixels.length / 4)) * 100;
+            
+            // Show phrases as clearing progresses
+            if (clearedPercentage > 20) {
+                document.getElementById('phrase1').classList.add('visible');
+            }
+            if (clearedPercentage > 50) {
+                document.getElementById('phrase2').classList.add('visible');
+            }
+            if (clearedPercentage > 70) {
+                document.getElementById('phrase3').classList.add('visible');
+            }
+            
+            // Fade away remaining gray at 80%
+            if (clearedPercentage > 80 && !isFullyCleared) {
+                isFullyCleared = true;
+                canvas.classList.add('fading');
+                
+                setTimeout(() => {
+                    canvas.style.display = 'none';
+                    makeDaffodilsClickable();
+                }, 1000);
+            }
+        }
+
+        // Make daffodils clickable
+        function makeDaffodilsClickable() {
+            daffodils.forEach(daffodil => {
+                daffodil.classList.add('clickable');
+                
+                daffodil.addEventListener('mouseenter', () => {
+                    daffodils.forEach(d => d.classList.add('highlight'));
+                });
+                
+                daffodil.addEventListener('mouseleave', () => {
+                    daffodils.forEach(d => d.classList.remove('highlight'));
+                });
+                
+                daffodil.addEventListener('click', () => {
+                    window.location.href = 'daffodils.html';
+                });
+            });
+        }
+
+        // Mouse events
+        canvas.addEventListener('mousedown', (e) => {
+            isClearing = true;
+            clearGray(e.clientX, e.clientY);
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (isClearing) {
+                clearGray(e.clientX, e.clientY);
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            isClearing = false;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isClearing = false;
+        });
+
+        // Touch events for mobile
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isClearing = true;
+            const touch = e.touches[0];
+            clearGray(touch.clientX, touch.clientY);
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (isClearing) {
+                const touch = e.touches[0];
+                clearGray(touch.clientX, touch.clientY);
+            }
+        });
+
+        canvas.addEventListener('touchend', () => {
+            isClearing = false;
+        });
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if (!isFullyCleared) {
+                ctx.fillStyle = '#5A5A5A';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        });
+    </script>
+</body>
+</html>
