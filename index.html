@@ -520,7 +520,7 @@
         // Add click handler to star
         document.getElementById('star').addEventListener('click', function() {
             if (this.classList.contains('unlocked')) {
-                alert('You unlocked the star!');
+                window.location.href = 'gold_star_ornament.html';
             } else {
                 alert('The star is still locked!');
             }

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horizons Glow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-image {
+            width: auto;
+            height: 100%;
+            display: block;
+        }
+
+        #backBtn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 100;
+            font-size: 0.9rem;
+            padding: 8px 20px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: #333;
+            font-family: 'Georgia', serif;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        #backBtn:hover {
+            background: white;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <img src="horizons-glow.png" alt="Horizons Glow" class="fullscreen-image">
+    
+    <button id="backBtn">← Back to Letter</button>
+    
+    <audio id="backgroundMusic" loop autoplay>
+        <source src="sunny.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const music = document.getElementById('backgroundMusic');
+        
+        // Play music
+        music.volume = 0.5;
+        music.play().catch(e => console.log('Autoplay prevented:', e));
+
+        // Add click handler to play audio if autoplay was blocked
+        document.body.addEventListener('click', function() {
+            if (music.paused) {
+                music.play();
+            }
+        }, { once: true });
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'gold_star_ornament.html';
+        });
+    </script>
+</body>
+</html>
